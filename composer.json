@@ -1,0 +1,29 @@
+{
+    "name": "c00/log",
+    "description": "Small logging framework",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Coo",
+            "email": "coo@covle.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "git@github.com:c00/common.git"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "5.5.*",
+        "c00/common": "0.x"
+    },
+    "autoload": {
+        "psr-4": { "c00\\": "src/" }
+    },
+    "require": {
+
+    }
+}
