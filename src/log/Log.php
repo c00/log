@@ -11,10 +11,10 @@ class Log {
     const DEBUG = 4;
     const EXTRA_DEBUG = 5;
 
-    var $channels = [];
-    /**
-     * @var LogBag
-     */
+    /** @var iLogChannel[] */
+    private $channels = [];
+
+    /** @var LogBag*/
     var $logbag;
 
     /** @var Log Singleton Log Instance */
@@ -29,7 +29,7 @@ class Log {
         return static::$instance;
     }
 
-    function __construct() {
+    public function __construct() {
         $this->logbag = new LogBag([], true);
 
         //Register to flush on exit.
@@ -76,33 +76,22 @@ class Log {
      * @param string $name 'onScreen', 'stdError', or 'mongo'. The name of the channel.
      * @param iLogChannel $channel The channel to set or add.
      */
-    static function setChannel($name, iLogChannel $channel){
+    public static function setChannel($name, iLogChannel $channel){
         $logger = Log::getInstance();
         $channel->setBag($logger->logbag->copy());
         $logger->channels[$name] = $channel;
     }
 
-    static function setUserId($userId){
+    public static function init($loadDefaultChannels = true){
         $logger = Log::getInstance();
-        //Set local
-        if (isset($logger->logbag)) $logger->logbag->user_id = $userId;
 
-        //Set for channels
-        foreach ($logger->channels as $key => $channel) {
-            /* @var $channel iLogChannel */
-            $channel->setUserId($userId);
+        if ($loadDefaultChannels){
+            $logger->setChannel('onScreen', new LogChannelOnScreen(["level" => self::EXTRA_DEBUG]));
+            $logger->setChannel('stdError', new LogChannelStdError(["level" => self::ERROR]));
         }
     }
 
-    static function loadDefaultchannels(){
-        $logger = Log::getInstance();
-        $logger->setChannel('onScreen', new LogChannelOnScreen(["level" => self::EXTRA_DEBUG]));
-        $logger->setChannel('stdError', new LogChannelStdError(["level" => self::ERROR]));
-        //$logger->setChannel('mysql', new LogChannelSQL(array("level" => self::EXTRA_DEBUG)));
-        //$logger->setChannel('mongo', new LogChannelMongo(array("level" => self::EXTRA_DEBUG)));
-    }
-
-    static public function getChannel($name) {
+    public static function getChannel($name) {
         $logger = Log::getInstance();
         if (isset($logger->channels[$name])) {
             return $logger->channels[$name];
@@ -116,7 +105,7 @@ class Log {
      *
      * @return LogBag|null
      */
-    static public function getLogForView() {
+    public static function getLogForView() {
         $logger = Log::getInstance();
 
         //Find the on screen logger.
@@ -132,18 +121,18 @@ class Log {
     /**
      * Flushes all current log items. flush() will be called on all channels.
      */
-    static public function flush() {
+    public static function flush() {
         $logger = Log::getInstance();
 
         foreach ($logger->channels as $key => $channel) {
             /* @var $channel iLogChannel */
             if (!$channel->flush()){
-                error_log("COVLE LOGGING: Error writing to channel: $key");
+                error_log("c00 LOGGING ERROR: Can't write to channel: $key");
             }
         }
     }
 
-    static public function levelString($level) {
+    public static function levelString($level) {
         switch ($level) {
             case self::DEBUG:
                 return "DEBUG";
@@ -183,7 +172,7 @@ class Log {
      * @param string $message The error message to log.
      * @return int Will return 1.
      */
-    static public function error($message) {
+    public static function error($message) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
@@ -199,7 +188,7 @@ class Log {
      * @param string $message The warning message to log.
      * @return int returns 1;
      */
-    static public function warning($message) {
+    public static function warning($message) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
@@ -215,7 +204,7 @@ class Log {
      * @param string $message The info message to log.
      * @return int returns 1.
      */
-    static public function info($message) {
+    public static function info($message) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
@@ -233,7 +222,7 @@ class Log {
      * @param mixed $o The object to log.
      * @return int
      */
-    static public function debug($message, $o = 0) {
+    public static function debug($message, $o = 0) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
@@ -251,49 +240,13 @@ class Log {
      * @param mixed $o The object to log.
      * @return int
      */
-    static public function extraDebug($message, $o = 0) {
+    public static function extraDebug($message, $o = 0) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
         $item = new LogItem(self::EXTRA_DEBUG, $message, $trace, $o);
 
         $logger->logToChannels($item);
-        return 1;
-    }
-
-    /**
-     * Logs a successful audit message.
-     *
-     * @param string $action The action that was performed successfully (e.g. login)
-     * @param string $userId The user Id or email address involved.
-     * @param string|null $message The message to log.
-     * @param mixed $object The object to log.
-     * @return int returns 1
-     */
-    static public function auditSucces($action, $userId, $message = null, $object = null){
-        $logger = Log::getInstance();
-
-        $item = new AuditItem(AuditItem::SUCCESS, $action, $userId, $message, $object);
-
-        $logger->auditToChannels($item);
-        return 1;
-    }
-
-    /**
-     * Logs a failed audit message.
-     *
-     * @param string $action The action that was attempted (e.g. login)
-     * @param string $userId The user Id or email address involved.
-     * @param string|null $message The message to log.
-     * @param mixed $object The object to log.
-     * @return int returns 1
-     */
-    static public function auditFailed($action, $userId, $message = null, $object = null){
-        $logger = Log::getInstance();
-
-        $item = new AuditItem(AuditItem::FAILED, $action, $userId, $message, $object);
-
-        $logger->auditToChannels($item);
         return 1;
     }
 

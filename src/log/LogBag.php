@@ -1,5 +1,7 @@
 <?php
 namespace c00\log;
+
+use c00\common\AbstractDatabaseObject;
 use \c00\common\CovleDate;
 use \c00\common\Helper as H;
 /**
@@ -7,47 +9,45 @@ use \c00\common\Helper as H;
  *
  * @author Coo
  */
-class LogBag {
+class LogBag extends AbstractDatabaseObject
+{
 
-    var $url, $user_id, $ip, $requestId, $id;
+    public $url;
+    public $ip;
+    public $id;
+
+    /** @var CovleDate */
+    public $timestamp;
+    /** @var LogItem[]  */
+    public $logItems;
+
     /**
-     * @var CovleDate
+     * LogBag constructor.
+     * @param LogItem[] $logItems
+     * @param bool $isNew
      */
-    var $timestamp;
-
-    var $log_items;
-    var $audit_items;
-
-    function __construct($log_items = [], $is_new = false) {
-        if ($is_new) {
+    public function __construct($logItems = [], $isNew = false) {
+        if ($isNew) {
             $this->CreateBagInfo();
         }
 
-        $this->log_items = $log_items;
+        $this->logItems = $logItems;
     }
 
-    function copy()
+    public function copy()
     {
         return clone $this;
     }
 
-    function CreateBagInfo() {
+    public function CreateBagInfo() {
         $this->url = $this->getFullUrl();
-        $this->requestId = uniqid("request");
+        $this->id = "request_" . bin2hex(openssl_random_pseudo_bytes(4));
         $this->timestamp = new CovleDate();
-
-        //todo: fix this.
-        global $user;
-        if (is_array($user)) {
-            $this->user_id = $user['id'];
-        } else {
-            $this->user_id = 0;
-        }
 
         if (isset($_SERVER['REMOTE_ADDR'])) $this->ip = $_SERVER['REMOTE_ADDR'];
     }
 
-    function getFullUrl($url_encode = false) {
+    public function getFullUrl($url_encode = false) {
         if (isset($_SERVER['HTTPS'])) {
             $result = "https://";
         } else {
@@ -62,60 +62,31 @@ class LogBag {
         return $result;
     }
 
-    function toMongo(){
-        $array = H::objectToArray($this);
-        $array['timestamp'] = $this->timestamp->toMongoDate();
-        $array['log_items'] = [];
-
-        foreach ($this->log_items as $log_item) {
-            /**
-             * @var $log_item LogItem
-             */
-            $array['log_items'][] = $log_item->toMongo();
-        }
-
-        //todo: create one for Audit Items (but unnecesary atm)
-        return $array;
-    }
-
-    static function fromMongo(array $array){
-        H::fixMongoIdToString($array);
-
-        $bag = new LogBag();
-        H::copyArrayPropertiesToObject($array, $bag);
-        if (isset($array['timestamp'])) $bag->timestamp = CovleDate::fromMongoDate($array['timestamp']);
-
-        //Iterate through logItems
-        if (isset($array['log_items'])){
-            $bag->log_items = [];
-            foreach($array['log_items'] as $item){
-                $bag->log_items[] = LogItem::fromMongo($item);
-            }
-        }
-
-        //Iterate through Audit Items
-        if (isset($array['audit_items'])){
-            $bag->audit_items = [];
-            foreach($array['audit_items'] as $item){
-                $bag->audit_items[] = AuditItem::fromMongo($item);
-            }
-        }
-
-        return $bag;
-    }
-
-    function toShowable(){
+    public function toShowable(){
         $array = H::objectToArray($this);
         $array['timestamp'] = $this->timestamp->toMiliseconds();
         $array['log_items'] = [];
-        foreach ($this->log_items as $log_item) {
-            /**
-             * @var $log_item LogItem
-             */
-
-            $array['log_items'][] = $log_item->toShowable();
+        foreach ($this->logItems as $logItem) {
+            $array['log_items'][] = $logItem->toShowable();
         }
         return $array;
+    }
+
+
+    public function toString()
+    {
+        $strings = [];
+        $strings[] = "Url: {$this->url}";
+        $strings[] = "IP: {$this->ip}";
+        $strings[] = "ID: {$this->id}";
+        $strings[] = "Date: {$this->timestamp->toString()}";
+        $strings[] = str_repeat("-", 15);
+
+        foreach ($this->logItems as $logItem) {
+            $strings[] = $logItem->toString();
+        }
+
+        return implode(PHP_EOL, $strings);
     }
 
 }

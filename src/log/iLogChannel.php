@@ -12,6 +12,4 @@ interface iLogChannel {
     public function setBag(LogBag $bag);
     
     public function log(LogItem $item);
-    public function setUserId($userId);
-    public function audit(AuditItem $item);
 }

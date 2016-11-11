@@ -5,6 +5,7 @@ namespace c00\log;
  *
  * @author Coo
  */
+//todo needs serious refactoring
 class LogChannelSQL extends LogDb implements iLogChannel {
 
     var $level;
@@ -33,7 +34,7 @@ class LogChannelSQL extends LogDb implements iLogChannel {
     }
 
     public function flush() {
-        if (count($this->logbag->log_items) === 0) {
+        if (count($this->logbag->logItems) === 0) {
             return true;
         }
 
@@ -46,7 +47,7 @@ class LogChannelSQL extends LogDb implements iLogChannel {
         if (!$this->saveBag($this->logbag)){
             return false;
         }
-        $this->logbag->log_items = [];
+        $this->logbag->logItems = [];
         return true;
     }
 
@@ -56,12 +57,8 @@ class LogChannelSQL extends LogDb implements iLogChannel {
             return 0;
         }
 
-        $this->logbag->log_items[] = $item;
+        $this->logbag->logItems[] = $item;
         return 1;
-    }
-
-    public function audit(AuditItem $item){
-        //do nothing.
     }
 
 }

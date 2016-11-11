@@ -33,7 +33,7 @@ class LogChannelStdError implements iLogChannel {
         }
 
         $seperator = "; ";
-        $message = $this->logbag->requestId . $seperator
+        $message = $this->logbag->id . $seperator
             . $item->date->toString() . $seperator
             . $item->id . $seperator
             . Log::levelString($item->level) . $seperator
@@ -42,17 +42,6 @@ class LogChannelStdError implements iLogChannel {
 
         error_log($message);
         return 1;
-    }
-
-    public function audit(AuditItem $item){
-        if (!$this->logFailedAudits && $item->type == AuditItem::FAILED) return true;
-        if (!$this->logSuccesfulAudits && $item->type == AuditItem::SUCCESS) return true;
-
-        $trace = $trace = debug_backtrace();
-        $logItem = new LogItem(-1, "Audit: $item->action, User: $item->userId ,message: $item->message", $trace);
-
-        $this->log($logItem);
-        return true;
     }
 
     public function flush() {

@@ -7,6 +7,7 @@ use \PDO, \PDOException;
  *
  * @author Coo
  */
+//todo: Needs some serious refactoring
 class LogDb {
     /**
      * @var PDO
@@ -41,7 +42,7 @@ class LogDb {
         $bag_id = $this->db->lastInsertId();
         $i = 0;
 
-        foreach ($bag->log_items as $item) {
+        foreach ($bag->logItems as $item) {
             $i += $this->saveItem($item, $bag_id);
         }
 
@@ -77,7 +78,7 @@ class LogDb {
         if (!empty($rows)) {
             
             $item = LogItem::fromSql($rows[0]['item']);
-            $item->bag_id = $rows[0]['bagId'];
+            $item->bagId = $rows[0]['bagId'];
 
             return $item;
         }
@@ -108,9 +109,9 @@ class LogDb {
 
         foreach ($rows as $row) {
             $item = LogItem::fromSql($row['item']);
-            $item->bag_id = $row['bag_id'];
+            $item->bagId = $row['bag_id'];
             
-            $bag->log_items[] = $item;
+            $bag->logItems[] = $item;
         }
 
         return $bag;
