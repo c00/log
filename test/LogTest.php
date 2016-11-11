@@ -35,5 +35,24 @@ class LogTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function testObject(){
+
+        $object = new \stdClass();
+        $object->name = "Willem";
+        $object->email = "willem@covle.com";
+
+        Log::init();
+        Log::debug("first message", $object);
+
+        $logs = Log::getLogForView();
+        $logString = $logs->toString();
+
+        $this->assertTrue($logs instanceof LogBag);
+
+        $this->assertEquals('first message', $logs->logItems[0]->message);
+
+
+    }
+
 
 }

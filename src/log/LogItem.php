@@ -22,7 +22,7 @@ class LogItem extends AbstractDatabaseObject
     /** @var CovleDate */
     public $date;
 
-    public function __construct($level, $message, $trace, $object = 0) {
+    public function __construct($level, $message, $trace, $object = null) {
         $this->id = bin2hex(openssl_random_pseudo_bytes(8));
         $this->level = $level;
         $this->message = $message;
@@ -44,6 +44,12 @@ class LogItem extends AbstractDatabaseObject
             Log::levelString($this->level) . ": " .
             $this->message . PHP_EOL . "\t" .
             $this->caller;
+
+        if ($this->object){
+            //Pretty print first
+            $pretty = json_encode(json_decode($this->object), JSON_PRETTY_PRINT);
+            $string .= PHP_EOL . $pretty;
+        }
 
         return $string;
     }
