@@ -61,4 +61,9 @@ class LogChannelSQL extends LogDb implements iLogChannel {
         return 1;
     }
 
+    public function setLevel($level)
+    {
+        $this->level = $level;
+    }
+
 }

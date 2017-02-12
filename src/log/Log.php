@@ -29,6 +29,22 @@ class Log {
         return static::$instance;
     }
 
+    /**
+     * Set the log level of a specific channel
+     * @param $level int Constant of iLogChannel
+     * @param string $channel Defaults to on screen channel
+     * @returns bool True if successful, false if channel doesn't exist.
+     */
+    public static function setLogLevel($level, $channel = iLogChannel::CHANNEL_ON_SCREEN){
+        $logger = self::getInstance();
+
+        if (!isset($logger->channels[$channel])) return false;
+
+        $logger->channels[$channel]->level = $level;
+
+        return true;
+    }
+
     public function __construct() {
         $this->logbag = new LogBag([], true);
 
@@ -86,8 +102,8 @@ class Log {
         $logger = Log::getInstance();
 
         if ($loadDefaultChannels){
-            $logger->setChannel('onScreen', new LogChannelOnScreen(["level" => self::EXTRA_DEBUG]));
-            $logger->setChannel('stdError', new LogChannelStdError(["level" => self::ERROR]));
+            $logger->setChannel(iLogChannel::CHANNEL_ON_SCREEN, new LogChannelOnScreen(["level" => self::EXTRA_DEBUG]));
+            $logger->setChannel(iLogChannel::CHANNEL_STD_ERROR, new LogChannelStdError(["level" => self::ERROR]));
         }
     }
 

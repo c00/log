@@ -31,6 +31,10 @@ class LogChannelOnScreen implements iLogChannel {
         $this->logbag = $logbag;
     }
 
+    public function setLevel($level){
+        $this->level = $level;
+    }
+
     public function flush() {
         //Do nothing. Shouldn't empty the array.
         return true;

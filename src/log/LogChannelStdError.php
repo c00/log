@@ -49,4 +49,10 @@ class LogChannelStdError implements iLogChannel {
         return true;
     }
 
+    public function setLevel($level)
+    {
+        $this->level = $level;
+    }
+
+
 }
