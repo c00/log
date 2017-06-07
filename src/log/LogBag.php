@@ -11,15 +11,21 @@ use \c00\common\Helper as H;
  */
 class LogBag extends AbstractDatabaseObject
 {
-
+    public $id;
     public $url;
     public $ip;
-    public $id;
+    public $userId;
 
     /** @var CovleDate */
-    public $timestamp;
+    public $date;
     /** @var LogItem[]  */
     public $logItems;
+
+    protected $_dataTypes = [
+        'date' => CovleDate::class
+    ];
+
+    protected $_ignore = ['logItems'];
 
     /**
      * LogBag constructor.
@@ -41,8 +47,8 @@ class LogBag extends AbstractDatabaseObject
 
     public function CreateBagInfo() {
         $this->url = $this->getFullUrl();
-        $this->id = "request_" . bin2hex(openssl_random_pseudo_bytes(4));
-        $this->timestamp = new CovleDate();
+        $this->id = "req_" . bin2hex(random_bytes(12));
+        $this->date = new CovleDate();
 
         if (isset($_SERVER['REMOTE_ADDR'])) $this->ip = $_SERVER['REMOTE_ADDR'];
     }
@@ -64,7 +70,7 @@ class LogBag extends AbstractDatabaseObject
 
     public function toShowable(){
         $array = H::objectToArray($this);
-        $array['timestamp'] = $this->timestamp->toMiliseconds();
+        $array['timestamp'] = $this->date->toMiliseconds();
         $array['log_items'] = [];
         foreach ($this->logItems as $logItem) {
             $array['log_items'][] = $logItem->toShowable();
@@ -79,7 +85,7 @@ class LogBag extends AbstractDatabaseObject
         $strings[] = "Url: {$this->url}";
         $strings[] = "IP: {$this->ip}";
         $strings[] = "ID: {$this->id}";
-        $strings[] = "Date: {$this->timestamp->toString()}";
+        $strings[] = "Date: {$this->date->toString()}";
         $strings[] = str_repeat("-", 15);
 
         foreach ($this->logItems as $logItem) {

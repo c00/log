@@ -11,32 +11,45 @@ use c00\common\Helper as H;
  */
 class LogItem extends AbstractDatabaseObject
 {
+    public $id;
     public $caller;
     public $trace;
     public $message;
     public $level;
     public $object;
-    public $id;
     public $bagId;
 
     /** @var CovleDate */
     public $date;
 
-    public function __construct($level, $message, $trace, $object = 0) {
-        $this->id = bin2hex(openssl_random_pseudo_bytes(8));
-        $this->level = $level;
-        $this->message = $message;
-        $this->trace = $this->GetTrace($trace);
+    protected $_dataTypes = [
+        'date' => CovleDate::class
+    ];
+
+    public static function newItem($level, $message, $trace, $object = 0) : LogItem
+    {
+        $item = new LogItem();
+
+        $item->id = bin2hex(random_bytes(12));
+        $item->level = $level;
+        $item->message = $message;
+        $item->trace = $item->GetTrace($trace);
 
         if ($object) {
             //For safety reasons this is being encoded to JSON.
-            $this->object = json_encode($object);
+            $item->object = json_encode($object);
         }
-        $this->date = new CovleDate();
+        $item->date = new CovleDate();
 
         if (is_array($trace) && isset($trace[0])) {
-            $this->caller = $trace[0]['file'] . " line: " . $trace[0]['line'];
+            $item->caller = $trace[0]['file'] . " line: " . $trace[0]['line'];
         }
+
+        return $item;
+    }
+
+    public function __construct() {
+
     }
 
     public function toString(){
@@ -65,6 +78,17 @@ class LogItem extends AbstractDatabaseObject
         }
 
         return $result;
+    }
+
+    public static function fromArray($array)
+    {
+        /** @var LogItem $item */
+        $item = parent::fromArray($array);
+
+        if ($item->object) $item->object = json_decode($array['object'], true);
+        if ($item->trace) $item->trace = json_decode($array['trace'], true);
+
+        return $item;
     }
 
     public function toShowable(){

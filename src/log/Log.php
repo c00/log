@@ -1,6 +1,9 @@
 <?php
 namespace c00\log;
 
+use c00\log\channel\iLogChannel;
+use c00\log\channel\LogChannelOnScreen;
+
 class Log {
 
     const AUDIT = -1;
@@ -11,11 +14,13 @@ class Log {
     const DEBUG = 4;
     const EXTRA_DEBUG = 5;
 
+    const DEFAULT_KEY = "log_default";
+
     /** @var iLogChannel[] */
     private $channels = [];
 
     /** @var LogBag*/
-    var $logbag;
+    private $logBag;
 
     /** @var Log Singleton Log Instance */
     private static $instance;
@@ -30,7 +35,7 @@ class Log {
     }
 
     public function __construct() {
-        $this->logbag = new LogBag([], true);
+        $this->logBag = new LogBag([], true);
 
         //Register to flush on exit.
         register_shutdown_function(function () {
@@ -73,21 +78,29 @@ class Log {
     /**
      * Sets or adds a channel to log to.
      *
-     * @param string $name 'onScreen', 'stdError', or 'mongo'. The name of the channel.
+     * @param string|null $name 'onScreen', 'stdError', or 'mongo'. The name of the channel. Defaults to the class name.
      * @param iLogChannel $channel The channel to set or add.
      */
-    public static function setChannel($name, iLogChannel $channel){
+    public static function setChannel(iLogChannel $channel, $name = null){
+        if ($name === null) $name = get_class($channel);
+
         $logger = Log::getInstance();
-        $channel->setBag($logger->logbag->copy());
+        $channel->setBag($logger->logBag->copy());
         $logger->channels[$name] = $channel;
     }
 
-    public static function init($loadDefaultChannels = true){
+    public static function init(LogSettings $settings = null){
+        if (!$settings) {
+            $settings = new LogSettings(self::DEFAULT_KEY, __DIR__);
+            $settings->loadDefaults();
+        }
+
         $logger = Log::getInstance();
 
-        if ($loadDefaultChannels){
-            $logger->setChannel('onScreen', new LogChannelOnScreen(["level" => self::EXTRA_DEBUG]));
-            $logger->setChannel('stdError', new LogChannelStdError(["level" => self::ERROR]));
+        foreach ($settings->channelSettings as $channelSetting) {
+            $className = $channelSetting->class;
+            $channel = new $className($channelSetting);
+            $logger->setChannel($channel);
         }
     }
 
@@ -97,11 +110,11 @@ class Log {
             return $logger->channels[$name];
         }
 
-        return false;
+        return null;
     }
 
     /**
-     * Gets the logbag with all the log items.
+     * Gets the log bag with all the log items.
      *
      * @return LogBag|null
      */
@@ -109,13 +122,13 @@ class Log {
         $logger = Log::getInstance();
 
         //Find the on screen logger.
-        if (!isset($logger->channels['onScreen']) || !isset($logger->channels['onScreen']->logbag)) {
+        if (!isset($logger->channels[LogChannelOnScreen::class]) || !isset($logger->channels[LogChannelOnScreen::class]->logBag)) {
             return null;
         }
 
-        $channel = $logger->channels['onScreen'];
+        $channel = $logger->channels[LogChannelOnScreen::class];
 
-        return $channel->logbag;
+        return $channel->logBag;
     }
 
     /**
@@ -158,14 +171,6 @@ class Log {
         }
     }
 
-    public function auditToChannels(AuditItem $item) {
-        foreach ($this->channels as $channel) {
-            /* @var $channel iLogChannel */
-            $channel->audit($item);
-        }
-    }
-
-
     /**
      * Log an error message.
      *
@@ -176,7 +181,7 @@ class Log {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = new LogItem(self::ERROR, $message, $trace);
+        $item = LogItem::newItem(self::ERROR, $message, $trace);
 
         $logger->logToChannels($item);
         return 1;
@@ -192,7 +197,7 @@ class Log {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = new LogItem(self::WARNING, $message, $trace);
+        $item = LogItem::newItem(self::WARNING, $message, $trace);
 
         $logger->logToChannels($item);
         return 1;
@@ -208,7 +213,7 @@ class Log {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = new LogItem(self::INFO, $message, $trace);
+        $item = LogItem::newItem(self::INFO, $message, $trace);
 
         $logger->logToChannels($item);
         return 1;
@@ -226,7 +231,7 @@ class Log {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = new LogItem(self::DEBUG, $message, $trace, $o);
+        $item = LogItem::newItem(self::DEBUG, $message, $trace, $o);
 
         $logger->logToChannels($item);
         return 1;
@@ -244,7 +249,7 @@ class Log {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = new LogItem(self::EXTRA_DEBUG, $message, $trace, $o);
+        $item = LogItem::newItem(self::EXTRA_DEBUG, $message, $trace, $o);
 
         $logger->logToChannels($item);
         return 1;
