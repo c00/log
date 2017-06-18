@@ -69,7 +69,7 @@ class LogItem extends AbstractDatabaseObject
         $result = [];
         //function, file, line
         foreach ($trace as $trace_line) {
-            $function = (isset($trace_line['function'])) ? $trace_line['function'] : "no functon";
+            $function = (isset($trace_line['function'])) ? $trace_line['function'] : "no function";
             $file = (isset($trace_line['file'])) ? $trace_line['file'] : "no file";
             $line = (isset($trace_line['line'])) ? $trace_line['line'] : "no line";
             $result[] = ["function" => $function,
@@ -93,7 +93,7 @@ class LogItem extends AbstractDatabaseObject
 
     public function toShowable(){
         $array = H::objectToArray($this);
-        $array['date'] = $this->date->toString();
+        $array['date'] = $this->date->toMiliseconds();
 
         return $array;
     }

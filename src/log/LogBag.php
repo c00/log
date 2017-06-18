@@ -70,10 +70,10 @@ class LogBag extends AbstractDatabaseObject
 
     public function toShowable(){
         $array = H::objectToArray($this);
-        $array['timestamp'] = $this->date->toMiliseconds();
-        $array['log_items'] = [];
+        $array['date'] = $this->date->toMiliseconds();
+        $array['logItems'] = [];
         foreach ($this->logItems as $logItem) {
-            $array['log_items'][] = $logItem->toShowable();
+            $array['logItems'][] = $logItem->toShowable();
         }
         return $array;
     }
