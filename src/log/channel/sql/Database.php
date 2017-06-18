@@ -2,6 +2,7 @@
 namespace c00\log\channel\sql;
 
 use c00\common\AbstractDatabase;
+use c00\common\CovleDate;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogItem;
@@ -104,6 +105,27 @@ class Database extends AbstractDatabase {
             ->orderBy('date', false)
             ->limit($number)
             ->asClass(LogBag::class);
+
+        /** @var LogBag[] $bags */
+        $bags = $this->getRows($q);
+
+        foreach ($bags as $bag) {
+            $bag->logItems = $this->getItems($bag->id);
+        }
+
+        return $bags;
+    }
+
+    public function getBagsSince(CovleDate $since, CovleDate $until = null) {
+        $q = Qry::select()
+            ->from(self::TABLE_BAG)
+            ->where('date', '>', $since->toSeconds())
+            ->orderBy('date', false)
+            ->asClass(LogBag::class);
+
+        if ($until){
+            $q->where('date', '<', $until->toSeconds());
+        }
 
         /** @var LogBag[] $bags */
         $bags = $this->getRows($q);
