@@ -1,6 +1,6 @@
 # log
 
-This is a very experimental logging 'framework'. Adapted from musings of earlier projects, it's currently really only used to log some stuff and show it on screen.
+This is a very experimental logging 'framework'. It currently can log to screen / stdError and SQL.
 
 Documentation is lacking, so unless you're interested in seeing how I code, this is probably not for you.
 

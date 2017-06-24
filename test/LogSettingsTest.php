@@ -11,6 +11,7 @@ namespace test;
 use c00\log\channel\sql\LogChannelSQL;
 use c00\log\channel\sql\SqlChannelSettings;
 use c00\log\ChannelSettings;
+use c00\log\Log;
 use c00\log\LogSettings;
 
 class LogSettingsTest extends \PHPUnit_Framework_TestCase
@@ -42,16 +43,14 @@ class LogSettingsTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testSqlChannel(){
-        $sqlSettings = new SqlChannelSettings();
-        $sqlSettings->database = "test_log";
-        $sqlSettings->username = "root";
-        $sqlSettings->password = "";
-        $sqlSettings->host = "localhost";
+        $database = "test_log";
+        $username = "root";
+        $password = "foo";
+        $host = "localhost";
 
         $settings = new LogSettings($this->key, $this->tmpDir);
         $settings->loadDefaults();
-
-        $settings->channelSettings[] = $sqlSettings;
+        $settings->addSqlChannelSettings($database, $username, $password, $host);
         $settings->save();
 
         $this->assertTrue(file_exists($this->tmpDir.$this->key . '.json'));
@@ -59,9 +58,23 @@ class LogSettingsTest extends \PHPUnit_Framework_TestCase
         $loaded = new LogSettings($this->key, $this->tmpDir);
         $loaded->load();
 
-        $loadedSqlChannel = $loaded->getChannelSettings(LogChannelSQL::class);
-        $this->assertEquals(SqlChannelSettings::class, get_class($loadedSqlChannel));
+        /** @var SqlChannelSettings $loadedSqlChannelSettings */
+        $loadedSqlChannelSettings = $loaded->getChannelSettings(LogChannelSQL::class);
+        $this->assertEquals(SqlChannelSettings::class, get_class($loadedSqlChannelSettings));
+        $this->assertEquals("foo", $loadedSqlChannelSettings->password);
 
+    }
+
+    public function testSqlShorthand(){
+        $database = "test_log";
+        $username = "root";
+        $password = "";
+        $host = "localhost";
+
+        $settings = LogSettings::newInstance()
+            ->addSqlChannelSettings($database, $username, $password, $host);
+
+        Log::init($settings);
     }
 
 }

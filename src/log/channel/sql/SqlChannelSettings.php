@@ -10,6 +10,7 @@ namespace c00\log\channel\sql;
 
 
 use c00\log\ChannelSettings;
+use c00\log\Log;
 
 class SqlChannelSettings extends ChannelSettings
 {
@@ -17,6 +18,8 @@ class SqlChannelSettings extends ChannelSettings
     public $password = '';
     public $host = 'localhost';
     public $database = 'log_default';
+    public $port = null;
+    public $tablePrefix = "";
 
     public function __construct()
     {

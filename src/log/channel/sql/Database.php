@@ -19,11 +19,16 @@ class Database extends AbstractDatabase {
     const TABLE_BAG = 'bag';
     const TABLE_ITEM = 'item';
 
+    /** @var SqlChannelSettings */
+    private $settings = null;
+
     function __construct(SqlChannelSettings $settings) {
+
+        $this->settings = $settings;
 
         //Connect to database
         try {
-            $this->connect($settings->host, $settings->username, $settings->password, $settings->database);
+            $this->connect($settings->host, $settings->username, $settings->password, $settings->database, $settings->port);
         } catch (PDOException $e) {
             Log::error("Cannot connect to Log Database!");
             Log::error($e->getMessage());
@@ -31,9 +36,36 @@ class Database extends AbstractDatabase {
         }
     }
 
+    /** Sets up the tables needed for logging
+     *
+     * @return bool Returns true if tables were created. Returns false if tables already existed.
+     */
+    public function setupTables() : bool
+    {
+        $tables = [
+            $this->getTable("bag"),
+            $this->getTable("item"),
+        ];
+
+        //Check if the tables exist
+        if (!$this->hasTables($tables)){
+            $fixture = file_get_contents(__DIR__ . '/fixture.sql');
+            $fixture = str_replace("{{PREFIX}}", $this->settings->tablePrefix, $fixture);
+            $this->db->exec($fixture);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function getTable($name){
+        return $this->settings->tablePrefix . $name;
+    }
+
     private function bagExists($bagId){
         $q = Qry::select('id')
-            ->from(self::TABLE_BAG)
+            ->from($this->getTable(self::TABLE_BAG))
             ->where('id', '=', $bagId);
 
         return $this->rowExists($q);
@@ -42,7 +74,7 @@ class Database extends AbstractDatabase {
     public function saveBag(LogBag $bag) {
 
         if (!$this->bagExists($bag->id)){
-            $q = Qry::insert(self::TABLE_BAG, $bag);
+            $q = Qry::insert($this->getTable(self::TABLE_BAG), $bag);
             $this->insertRow($q);
         }
 
@@ -55,7 +87,7 @@ class Database extends AbstractDatabase {
     }
 
     public function saveItem(LogItem $item) {
-        $q = Qry::insert(self::TABLE_ITEM, $item);
+        $q = Qry::insert($this->getTable(self::TABLE_ITEM), $item);
         $this->insertRow($q);
     }
 
@@ -63,7 +95,7 @@ class Database extends AbstractDatabase {
     public function getLastBag() : LogBag
     {
         $q = Qry::select()
-            ->from(self::TABLE_BAG)
+            ->from($this->getTable(self::TABLE_BAG))
             ->orderBy('date', false)
             ->asClass(LogBag::class);
 
@@ -77,7 +109,7 @@ class Database extends AbstractDatabase {
 
     private function getItems($bagId){
         $q = Qry::select()
-            ->from(self::TABLE_ITEM)
+            ->from($this->getTable(self::TABLE_ITEM))
             ->where('bagId', '=', $bagId)
             ->orderBy('order', true)
             ->asClass(LogItem::class);
@@ -87,7 +119,7 @@ class Database extends AbstractDatabase {
 
     public function getBag($bagId) {
         $q = Qry::select()
-            ->from(self::TABLE_BAG)
+            ->from($this->getTable(self::TABLE_BAG))
             ->where('id', '=', $bagId)
             ->asClass(LogBag::class);
 
@@ -101,7 +133,7 @@ class Database extends AbstractDatabase {
 
     public function getLastBags($number) {
         $q = Qry::select()
-            ->from(self::TABLE_BAG)
+            ->from($this->getTable(self::TABLE_BAG))
             ->orderBy('date', false)
             ->limit($number)
             ->asClass(LogBag::class);
@@ -118,7 +150,7 @@ class Database extends AbstractDatabase {
 
     public function getBagsSince(CovleDate $since, CovleDate $until = null) {
         $q = Qry::select()
-            ->from(self::TABLE_BAG)
+            ->from($this->getTable(self::TABLE_BAG))
             ->where('date', '>', $since->toSeconds())
             ->orderBy('date', false)
             ->asClass(LogBag::class);

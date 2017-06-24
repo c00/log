@@ -27,12 +27,18 @@ class LogToSqlTest extends \PHPUnit_Framework_TestCase
     private $db;
 
     public function setUp(){
-        //Settings
-        $sqlSettings = new SqlChannelSettings();
-        $sqlSettings->database = "test_log";
-        $sqlSettings->username = "root";
-        $sqlSettings->password = "";
-        $sqlSettings->host = "localhost";
+        $database = "test_log";
+        $username = "root";
+        $password = "";
+        $host = "localhost";
+
+        //Setup logging
+        $settings = LogSettings::newInstance(false)
+            ->addSqlChannelSettings($host, $username, $password, $database);
+        $settings->level = Log::INFO;
+
+        /** @var SqlChannelSettings $sqlSettings */
+        $sqlSettings = $settings->getChannelSettings(LogChannelSQL::class);
 
         //Setup database
         $this->pdo = new \PDO(
@@ -42,17 +48,13 @@ class LogToSqlTest extends \PHPUnit_Framework_TestCase
             [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, \PDO::ATTR_EMULATE_PREPARES => false]
         );
 
-        //Run fixture. This removes all content in the database and resets to the primary set.
-        $sql = file_get_contents(__DIR__ . '/fixture.sql');
+        //empty logs
+        $sql = "SET foreign_key_checks = 0; TRUNCATE TABLE `log_bag`; TRUNCATE TABLE `log_item`;";
         $this->pdo->exec($sql);
 
         //DB for getting info
         $this->db = new Database($sqlSettings);
-
-        //Setup logging
-        $settings = new LogSettings('test_log', __DIR__);
-        $settings->level = Log::INFO;
-        $settings->channelSettings[] = $sqlSettings;
+        $this->db->setupTables();
 
         Log::init($settings);
     }
