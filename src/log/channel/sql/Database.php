@@ -73,6 +73,8 @@ class Database extends AbstractDatabase {
 
     public function saveBag(LogBag $bag) {
 
+        $this->beginTransaction();
+
         if (!$this->bagExists($bag->id)){
             $q = Qry::insert($this->getTable(self::TABLE_BAG), $bag);
             $this->insertRow($q);
@@ -82,6 +84,8 @@ class Database extends AbstractDatabase {
             $item->bagId = $bag->id;
             $this->saveItem($item);
         }
+
+        $this->commitTransaction();
 
         return true;
     }

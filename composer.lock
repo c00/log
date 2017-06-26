@@ -9,16 +9,16 @@
     "packages-dev": [
         {
             "name": "c00/common",
-            "version": "0.8.2",
+            "version": "0.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/c00/common.git",
-                "reference": "81faf1839a326794da184adab0df0a1e4291ce48"
+                "reference": "58babdf1ca48531f2e65fa786c835777d980f210"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/c00/common/zipball/81faf1839a326794da184adab0df0a1e4291ce48",
-                "reference": "81faf1839a326794da184adab0df0a1e4291ce48",
+                "url": "https://api.github.com/repos/c00/common/zipball/58babdf1ca48531f2e65fa786c835777d980f210",
+                "reference": "58babdf1ca48531f2e65fa786c835777d980f210",
                 "shasum": ""
             },
             "require-dev": {
@@ -41,10 +41,10 @@
             ],
             "description": "A mini framework for Database access, Dependency injection and Date manipulation.",
             "support": {
-                "source": "https://github.com/c00/common/tree/0.8.2",
+                "source": "https://github.com/c00/common/tree/0.8.3",
                 "issues": "https://github.com/c00/common/issues"
             },
-            "time": "2017-06-24T09:58:59+00:00"
+            "time": "2017-06-26T05:36:34+00:00"
         },
         {
             "name": "doctrine/instantiator",
