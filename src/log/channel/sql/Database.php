@@ -148,11 +148,12 @@ class Database extends AbstractDatabase {
         return $bags;
     }
 
-    public function getBagsSince(CovleDate $since, CovleDate $until = null) {
+    public function getBagsSince(CovleDate $since, CovleDate $until = null, $limit = 100, $offset = 0) {
         $q = Qry::select()
             ->from($this->getTable(self::TABLE_BAG))
             ->where('date', '>', $since->toSeconds())
             ->orderBy('date', false)
+            ->limit($limit, $offset)
             ->asClass(LogBag::class);
 
         if ($until){
