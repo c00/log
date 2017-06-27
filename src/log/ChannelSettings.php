@@ -16,7 +16,6 @@ class ChannelSettings
     public $level = Log::EXTRA_DEBUG;
     public $load = true;
     public $class = LogChannelOnScreen::class;
-    public $settingsClass = self::class;
 
     public function __construct()
     {

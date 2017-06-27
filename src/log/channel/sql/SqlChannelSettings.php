@@ -24,7 +24,6 @@ class SqlChannelSettings extends ChannelSettings
     public function __construct()
     {
         $this->class = LogChannelSQL::class;
-        $this->settingsClass = self::class;
     }
 
 }
