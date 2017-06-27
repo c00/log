@@ -22,7 +22,8 @@ class LogSettingsTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         //Delete temp files.
-        unlink($this->tmpDir . $this->key . '.json');
+        $file = $this->tmpDir . $this->key . '.json';
+        if (file_exists($file)) unlink($file);
 
         parent::tearDown();
     }

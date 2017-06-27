@@ -61,22 +61,5 @@ class LogSettings extends AbstractSettings
         return new ChannelSettings();
     }
 
-    public function Load(){
-        parent::load();
-
-        $settingsArrays = $this->channelSettings;
-
-        $this->channelSettings = [];
-
-        //Cast ChannelSettings
-        foreach ($settingsArrays as $channelSettingArray) {
-            $class = $channelSettingArray['settingsClass'];
-            $channelSettings = new $class();
-            Helper::copyArrayPropertiesToObject($channelSettingArray, $channelSettings);
-
-            $this->channelSettings[] = $channelSettings;
-        }
-    }
-
 
 }
