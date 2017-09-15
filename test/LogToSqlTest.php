@@ -8,6 +8,7 @@
 
 namespace test;
 
+use c00\common\CovleDate;
 use c00\log\channel\LogChannelOnScreen;
 use c00\log\channel\LogChannelStdError;
 use c00\log\channel\sql\Database;
@@ -16,6 +17,7 @@ use c00\log\channel\sql\SqlChannelSettings;
 use c00\log\ChannelSettings;
 use c00\log\Log;
 use c00\log\LogBag;
+use c00\log\LogQuery;
 use c00\log\LogSettings;
 
 class LogToSqlTest extends \PHPUnit_Framework_TestCase
@@ -30,7 +32,7 @@ class LogToSqlTest extends \PHPUnit_Framework_TestCase
         $database = "test_log";
         $username = "root";
         $password = "";
-        $host = "localhost";
+        $host = "127.0.0.1";
 
         //Setup logging
         $settings = LogSettings::newInstance(false)
@@ -97,6 +99,47 @@ class LogToSqlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(Log::INFO, $logs->logItems[3]->level);
     }
 
+    public function testQueryLast() {
+        $this->addTestLogs();
+
+        $q = new LogQuery();
+        //Only a since date, that's after stuff was added. Should return nothing.
+        $q->since = CovleDate::now()->addSeconds(5);
+        $bags = $this->db->queryBags($q);
+
+        $this->assertEquals(0, count($bags));
+
+        //Move the time to before they were made
+        $q->since->addSeconds(-10);
+        $bags = $this->db->queryBags($q);
+
+        $this->assertEquals(1, count($bags));
+
+
+
+
+    }
+
+    private function addTestLogs() {
+        Log::init();
+        Log::extraDebug("extra debug message1");
+        Log::debug("debug message1");
+        Log::info("info message1");
+        Log::warning("warning message1");
+        Log::error("error message1");
+        Log::extraDebug("extra debug message2");
+        Log::debug("debug message2");
+        Log::info("info message2");
+        Log::warning("warning message2");
+        Log::error("error message2");
+        Log::extraDebug("extra debug message3");
+        Log::debug("debug message3");
+        Log::info("info message3");
+        Log::warning("warning message3");
+        Log::error("error message3");
+
+        Log::flush();
+    }
 
 
 }

@@ -6,6 +6,7 @@ use c00\common\CovleDate;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogItem;
+use c00\log\LogQuery;
 use c00\QueryBuilder\Qry;
 use \PDOException;
 
@@ -162,6 +163,36 @@ class Database extends AbstractDatabase {
 
         if ($until){
             $q->where('date', '<', $until->toSeconds());
+        }
+
+        /** @var LogBag[] $bags */
+        $bags = $this->getRows($q);
+
+        foreach ($bags as $bag) {
+            $bag->logItems = $this->getItems($bag->id);
+        }
+
+        return $bags;
+    }
+
+    public function queryBags(LogQuery $query) {
+        $offset = $query->limit * $query->page;
+        $q = Qry::select()
+            ->from($this->getTable(self::TABLE_BAG))
+            ->orderBy('date', false)
+            ->limit($query->limit, $offset)
+            ->asClass(LogBag::class);
+
+        if ($query->since){
+            $q->where('date', '>', $query->since->toSeconds());
+        }
+
+        if ($query->until){
+            $q->where('date', '<', $query->until->toSeconds());
+        }
+
+        if (count($query->includeLevels) > 0){
+            $q->whereIn('level', $query->includeLevels);
         }
 
         /** @var LogBag[] $bags */
