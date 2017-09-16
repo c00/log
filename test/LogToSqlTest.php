@@ -36,7 +36,7 @@ class LogToSqlTest extends \PHPUnit_Framework_TestCase
 
         //Setup logging
         $settings = LogSettings::newInstance(false)
-            ->addSqlChannelSettings($host, $username, $password, $database);
+            ->addSqlChannelSettings($host, $username, $password, $database, null, Log::EXTRA_DEBUG);
         $settings->level = Log::INFO;
 
         /** @var SqlChannelSettings $sqlSettings */
@@ -114,9 +114,25 @@ class LogToSqlTest extends \PHPUnit_Framework_TestCase
         $bags = $this->db->queryBags($q);
 
         $this->assertEquals(1, count($bags));
+        $this->assertEquals(15, count($bags[0]->logItems));
 
+        //Get only errors
+        $q->includeLevels = [Log::ERROR];
 
+        $bags = $this->db->queryBags($q);
+        $this->assertEquals(3, count($bags[0]->logItems));
+        foreach ($bags[0]->logItems as $logItem) {
+            $this->assertEquals(Log::ERROR, $logItem->level);
+        }
 
+        //Get errors and debugs
+        $q->includeLevels = [Log::ERROR, Log::DEBUG];
+
+        $bags = $this->db->queryBags($q);
+        $this->assertEquals(6, count($bags[0]->logItems));
+        foreach ($bags[0]->logItems as $logItem) {
+            $this->assertTrue(in_array($logItem->level, $q->includeLevels));
+        }
 
     }
 

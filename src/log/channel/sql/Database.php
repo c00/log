@@ -178,30 +178,34 @@ class Database extends AbstractDatabase {
     public function queryBags(LogQuery $query) {
         $offset = $query->limit * $query->page;
         $q = Qry::select()
-            ->from($this->getTable(self::TABLE_BAG))
-            ->orderBy('date', false)
-            ->limit($query->limit, $offset)
-            ->asClass(LogBag::class);
+            ->fromClass(LogBag::class, $this->getTable(self::TABLE_BAG), 'b')
+            ->joinClass(LogItem::class, $this->getTable(self::TABLE_ITEM), 'i', 'b.id', '=', 'i.bagId')
+            ->orderBy('b.date', false)
+            ->limit($query->limit, $offset);
 
         if ($query->since){
-            $q->where('date', '>', $query->since->toSeconds());
+            $q->where('b.date', '>', $query->since->toSeconds());
         }
 
         if ($query->until){
-            $q->where('date', '<', $query->until->toSeconds());
+            $q->where('b.date', '<', $query->until->toSeconds());
         }
 
         if (count($query->includeLevels) > 0){
-            $q->whereIn('level', $query->includeLevels);
+            $q->whereIn('i.level', $query->includeLevels);
         }
 
         /** @var LogBag[] $bags */
-        $bags = $this->getRows($q);
+        $objects = $this->getObjects($q);
+        /** @var LogBag[] $bags */
+        $bags = $objects['b'] ?? [];
+        /** @var LogItem[] $items */
+        $items = $objects['i'] ?? [];
 
-        foreach ($bags as $bag) {
-            $bag->logItems = $this->getItems($bag->id);
+        foreach ($items as $item) {
+            if (isset($bags[$item->bagId])) $bags[$item->bagId]->logItems[] = $item;
         }
 
-        return $bags;
+        return array_values($bags);
     }
 }
