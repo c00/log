@@ -31,7 +31,10 @@ Date: 2016-11-11 03:31:02
 
 # todo 
 
-Among other things: 
-- Give options on init to setup properly
-- Add mysql channel
-- Allow reading from mysql db
+Among other things:
+- Make TestHelper and settings file
+- Add tags to messages
+- Increment log messages correctly (microtime it, or just keep a record.)
+- Create a front-end
+- fix errors in tests.
+- Add http VERB to log.

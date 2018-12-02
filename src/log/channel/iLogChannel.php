@@ -1,9 +1,7 @@
 <?php
 namespace c00\log\channel;
-use c00\log\ChannelSettings;
 use c00\log\LogBag;
 use c00\log\LogItem;
-use c00\log\LogSettings;
 
 /**
  * Interface for Log Channels. A log channel logs to a different source.
@@ -11,7 +9,12 @@ use c00\log\LogSettings;
  * @author Coo
  */
 interface iLogChannel {
-    public function __construct(ChannelSettings $settings);
+	/**
+	 * iLogChannel constructor.
+	 *
+	 * @param AbstractChannelSettings $settings
+	 */
+    public function __construct($settings);
 
     /** Flushes any unsaved log messages to the channel (e.g., Database)
      * @return bool True on success, False on error.

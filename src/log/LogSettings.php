@@ -4,31 +4,36 @@ namespace c00\log;
 
 
 use c00\common\AbstractSettings;
-use c00\common\Helper;
-use c00\log\channel\iLogChannel;
-use c00\log\channel\LogChannelOnScreen;
-use c00\log\channel\LogChannelStdError;
-use c00\log\channel\sql\SqlChannelSettings;
+use c00\log\channel\AbstractChannelSettings;
+use c00\log\channel\onScreen\OnScreenSettings;
+use c00\log\channel\stdError\StdErrorSettings;
+use c00\log\channel\sql\SqlAbstractChannelSettings;
 
 class LogSettings extends AbstractSettings
 {
     const DEFAULT_KEY = "log-settings";
 
-    public $level;
+    /** @var string The default level for new channels */
+    public $defaultLevel;
 
-    /** @var ChannelSettings[] */
+    /** @var AbstractChannelSettings[] */
     public $channelSettings = [];
 
     public function loadDefaults()
     {
-        $this->level = Log::EXTRA_DEBUG;
+        $this->defaultLevel = Log::EXTRA_DEBUG;
 
-        $this->channelSettings[] = ChannelSettings::newInstance(LogChannelOnScreen::class,Log::EXTRA_DEBUG);
-        $this->channelSettings[] = ChannelSettings::newInstance(LogChannelStdError::class,Log::ERROR);
-
+        $this->addChannelSettings(OnScreenSettings::new());
+	    $this->addChannelSettings(stdErrorSettings::new(Log::ERROR));
     }
 
-    public static function newInstance(bool $loadDefaults = true) : LogSettings
+    public function addChannelSettings(AbstractChannelSettings $settings) {
+    	if (!$settings->level) $settings->level = $this->defaultLevel;
+
+    	$this->channelSettings[get_class($settings)] = $settings;
+    }
+
+    public static function new(bool $loadDefaults = true) : LogSettings
     {
         $s = new LogSettings(self::DEFAULT_KEY, __DIR__);
         if ($loadDefaults) $s->loadDefaults();
@@ -37,7 +42,7 @@ class LogSettings extends AbstractSettings
     }
 
     public function addSqlChannelSettings($host, $username, $password, $database, $port = null, $level = Log::DEBUG, $tablePrefix = "log_"){
-        $s = new SqlChannelSettings();
+        $s = new SqlAbstractChannelSettings();
         $s->database = $database;
         $s->username = $username;
         $s->password = $password;
@@ -51,14 +56,20 @@ class LogSettings extends AbstractSettings
         return $this;
     }
 
-    public function getChannelSettings($channel) : ChannelSettings
+	/**
+	 * @param string $channel
+	 *
+	 * @return AbstractChannelSettings
+	 * @throws LogException
+	 */
+    public function getChannelSettings(string $channel) : AbstractChannelSettings
     {
 
-        foreach ($this->channelSettings as $channelSetting) {
-            if ($channelSetting->class == $channel) return $channelSetting;
-        }
+    	if (isset($this->channelSettings[$channel])) {
+    		return $this->channelSettings[$channel];
+	    }
 
-        return new ChannelSettings();
+    	throw LogException::new("Unknown channel $channel");
     }
 
 

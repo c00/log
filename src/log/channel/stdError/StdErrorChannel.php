@@ -1,6 +1,6 @@
 <?php
 namespace c00\log\channel;
-use c00\log\ChannelSettings;
+use c00\log\channel\stdError\StdErrorSettings;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogItem;
@@ -10,14 +10,19 @@ use c00\log\LogItem;
  *
  * @author Coo
  */
-class LogChannelStdError implements iLogChannel {
+class StdErrorChannel implements iLogChannel {
 
     public $level;
 
     /** @var LogBag */
     public $logBag;
 
-    public function __construct(ChannelSettings $settings) {
+	/**
+	 * StdErrorChannel constructor.
+	 *
+	 * @param StdErrorSettings $settings
+	 */
+    public function __construct($settings) {
         $this->level = $settings->level;
     }
 

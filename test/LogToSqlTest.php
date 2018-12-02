@@ -5,7 +5,7 @@ namespace test;
 use c00\common\CovleDate;
 use c00\log\channel\sql\Database;
 use c00\log\channel\sql\LogChannelSQL;
-use c00\log\channel\sql\SqlChannelSettings;
+use c00\log\channel\sql\SqlAbstractChannelSettings;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogQuery;
@@ -27,11 +27,11 @@ class LogToSqlTest extends TestCase
         $host = "127.0.0.1";
 
         //Setup logging
-        $settings = LogSettings::newInstance(false)
+        $settings               = LogSettings::new(false)
             ->addSqlChannelSettings($host, $username, $password, $database, null, Log::EXTRA_DEBUG);
-        $settings->level = Log::INFO;
+        $settings->defaultLevel = Log::INFO;
 
-        /** @var SqlChannelSettings $sqlSettings */
+        /** @var SqlAbstractChannelSettings $sqlSettings */
         $sqlSettings = $settings->getChannelSettings(LogChannelSQL::class);
 
         //Setup database

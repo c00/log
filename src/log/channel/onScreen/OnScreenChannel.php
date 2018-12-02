@@ -1,6 +1,6 @@
 <?php
-namespace c00\log\channel;
-use c00\log\ChannelSettings;
+namespace c00\log\channel\onScreen;
+use c00\log\channel\iLogChannel;
 use c00\log\LogBag;
 use c00\log\LogItem;
 
@@ -9,13 +9,18 @@ use c00\log\LogItem;
  *
  * @author Coo
  */
-class LogChannelOnScreen implements iLogChannel {
+class OnScreenChannel implements iLogChannel {
     public $level;
 
     /** @var LogBag */
     public $logBag;
-    
-    public function __construct(ChannelSettings $settings) {
+
+	/**
+	 * OnScreenChannel constructor.
+	 *
+	 * @param OnScreenSettings $settings
+	 */
+    public function __construct($settings) {
         $this->level = $settings->level;
     }
 

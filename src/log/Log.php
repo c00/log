@@ -2,7 +2,7 @@
 namespace c00\log;
 
 use c00\log\channel\iLogChannel;
-use c00\log\channel\LogChannelOnScreen;
+use c00\log\channel\onScreen\OnScreenChannel;
 
 class Log {
 
@@ -73,20 +73,6 @@ class Log {
         });
     }
 
-    /**
-     * Sets or adds a channel to log to.
-     *
-     * @param string|null $name 'onScreen', 'stdError', or 'mongo'. The name of the channel. Defaults to the class name.
-     * @param iLogChannel $channel The channel to set or add.
-     */
-    public static function setChannel(iLogChannel $channel, $name = null){
-        if ($name === null) $name = get_class($channel);
-
-        $logger = Log::getInstance();
-        $channel->setBag($logger->logBag->copy());
-        $logger->channels[$name] = $channel;
-    }
-
     public static function init(LogSettings $settings = null){
         if (!$settings) {
             $settings = new LogSettings(self::DEFAULT_KEY, __DIR__);
@@ -97,20 +83,39 @@ class Log {
 	    $logger->channels = [];
 	    $logger->logBag = new LogBag([], true);
 
-        foreach ($settings->channelSettings as $channelSetting) {
-            $className = $channelSetting->class;
-            $channel = new $className($channelSetting);
+        foreach ($settings->channelSettings as $class => $channelSetting) {
+            $channel = new $class($channelSetting);
             $logger->setChannel($channel);
         }
     }
 
-    public static function getChannel($name) {
+	/**
+	 * Sets or adds a channel to log to.
+	 *
+	 * @param string|null $name 'onScreen', 'stdError', or 'mongo'. The name of the channel. Defaults to the class name.
+	 * @param iLogChannel $channel The channel to set or add.
+	 */
+	public static function setChannel(iLogChannel $channel, $name = null){
+		if ($name === null) $name = get_class($channel);
+
+		$logger = Log::getInstance();
+		$channel->setBag($logger->logBag->copy());
+		$logger->channels[$name] = $channel;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return iLogChannel
+	 * @throws LogException
+	 */
+    public static function getChannel(string $name) {
         $logger = Log::getInstance();
         if (isset($logger->channels[$name])) {
             return $logger->channels[$name];
         }
 
-        return null;
+        throw LogException::new("Channel not found: $name");
     }
 
     /**
@@ -119,16 +124,14 @@ class Log {
      * @return LogBag|null
      */
     public static function getLogForView() {
-        $logger = Log::getInstance();
+        //Find the onScreen logger.
+	    try {
+	    	$channel = self::getChannel(OnScreenChannel::class);
 
-        //Find the on screen logger.
-        if (!isset($logger->channels[LogChannelOnScreen::class]) || !isset($logger->channels[LogChannelOnScreen::class]->logBag)) {
-            return null;
-        }
-
-        $channel = $logger->channels[LogChannelOnScreen::class];
-
-        return $channel->logBag;
+	        return $channel->logBag;
+	    } catch (LogException $e) {
+	    	return null;
+	    }
     }
 
     /**
@@ -164,7 +167,7 @@ class Log {
         }
     }
 
-    public function logToChannels(LogItem $item) {
+    private function logToChannels(LogItem $item) {
         foreach ($this->channels as $channel) {
             /* @var $channel iLogChannel */
             $channel->log($item);

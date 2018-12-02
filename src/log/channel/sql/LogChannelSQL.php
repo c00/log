@@ -2,7 +2,7 @@
 namespace c00\log\channel\sql;
 
 use c00\log\channel\iLogChannel;
-use c00\log\ChannelSettings;
+use c00\log\AbstractChannelSettings;
 use c00\log\LogBag;
 use c00\log\LogItem;
 
@@ -13,7 +13,7 @@ use c00\log\LogItem;
  */
 class LogChannelSQL implements iLogChannel {
 
-    /** @var  ChannelSettings */
+    /** @var  AbstractChannelSettings */
     public $settings;
 
     /** @var  Database */
@@ -22,8 +22,8 @@ class LogChannelSQL implements iLogChannel {
     /** @var LogBag */
     private $logBag;
 
-    public function __construct(ChannelSettings $settings) {
-        if (!$settings instanceof SqlChannelSettings) throw new \Exception("No settings");
+    public function __construct(AbstractChannelSettings $settings) {
+        if (! $settings instanceof SqlAbstractChannelSettings) throw new \Exception("No settings");
 
         $this->db = new Database($settings);
         $this->settings = $settings;

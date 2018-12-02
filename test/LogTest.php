@@ -3,9 +3,9 @@
 namespace test;
 
 use c00\log\channel\LogChannelOnScreen;
-use c00\log\channel\LogChannelStdError;
+use c00\log\channel\StdErrorChannel;
 use c00\log\channel\sql\LogChannelSQL;
-use c00\log\ChannelSettings;
+use c00\log\AbstractChannelSettings;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogSettings;
@@ -38,16 +38,16 @@ class LogTest extends TestCase
         $onScreen = Log::getChannel(LogChannelOnScreen::class);
         $this->assertTrue($onScreen instanceof LogChannelOnScreen);
 
-        $stdError = Log::getChannel(LogChannelStdError::class);
-        $this->assertTrue($stdError instanceof LogChannelStdError);
+        $stdError = Log::getChannel(StdErrorChannel::class);
+        $this->assertTrue( $stdError instanceof StdErrorChannel);
     }
 
     public function testChannels2(){
-        $settings = new LogSettings('app', __DIR__);
-        $settings->level = Log::INFO;
+        $settings               = new LogSettings('app', __DIR__);
+        $settings->defaultLevel = Log::INFO;
 
         //On screen channel
-        $settings->channelSettings[] = ChannelSettings::newInstance(LogChannelOnScreen::class, $settings->level);
+        $settings->channelSettings[] = AbstractChannelSettings::newInstance(LogChannelOnScreen::class, $settings->defaultLevel);
 
         //SQL channel
 	    $database = "test_log";
@@ -61,7 +61,7 @@ class LogTest extends TestCase
         $onScreen = Log::getChannel(LogChannelOnScreen::class);
         $this->assertTrue($onScreen instanceof LogChannelOnScreen);
 
-        $stdError = Log::getChannel(LogChannelStdError::class);
+        $stdError = Log::getChannel(StdErrorChannel::class);
         $this->assertNull($stdError);
 
         $sql = Log::getChannel(LogChannelSQL::class);
