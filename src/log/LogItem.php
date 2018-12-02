@@ -18,12 +18,14 @@ class LogItem extends AbstractDatabaseObject
     public $level;
     public $object;
     public $bagId;
+    public $order;
 
     /** @var CovleDate */
     public $date;
 
     protected $_dataTypes = [
-        'date' => CovleDate::class
+        'date' => CovleDate::class,
+        'order' => 'int'
     ];
 
     public static function newItem($level, $message, $trace, $object = 0) : LogItem
