@@ -1,14 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Co
- * Date: 18/06/2016
- * Time: 01:12
- */
 
 namespace test;
+use PHPUnit\Framework\TestCase;
 
-class crapTest2 extends \PHPUnit_Framework_TestCase
+class crapTest2 extends TestCase
 {
 
     public function testTruth(){

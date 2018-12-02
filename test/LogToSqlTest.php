@@ -1,26 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Co
- * Date: 18/06/2016
- * Time: 01:12
- */
 
 namespace test;
 
 use c00\common\CovleDate;
-use c00\log\channel\LogChannelOnScreen;
-use c00\log\channel\LogChannelStdError;
 use c00\log\channel\sql\Database;
 use c00\log\channel\sql\LogChannelSQL;
 use c00\log\channel\sql\SqlChannelSettings;
-use c00\log\ChannelSettings;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogQuery;
 use c00\log\LogSettings;
+use PHPUnit\Framework\TestCase;
 
-class LogToSqlTest extends \PHPUnit_Framework_TestCase
+class LogToSqlTest extends TestCase
 {
     /** @var \PDO */
     private $pdo;
@@ -62,7 +54,6 @@ class LogToSqlTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testInit(){
-        Log::init();
         Log::debug("first message");
         Log::info("info message");
         Log::error("error message");

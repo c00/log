@@ -35,8 +35,6 @@ class Log {
     }
 
     public function __construct() {
-        $this->logBag = new LogBag([], true);
-
         //Register to flush on exit.
         register_shutdown_function(function () {
             $logger = Log::getInstance();
@@ -96,6 +94,8 @@ class Log {
         }
 
         $logger = Log::getInstance();
+	    $logger->channels = [];
+	    $logger->logBag = new LogBag([], true);
 
         foreach ($settings->channelSettings as $channelSetting) {
             $className = $channelSetting->class;
@@ -254,5 +254,4 @@ class Log {
         $logger->logToChannels($item);
         return 1;
     }
-
 }

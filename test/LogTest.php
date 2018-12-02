@@ -1,26 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Co
- * Date: 18/06/2016
- * Time: 01:12
- */
 
 namespace test;
 
 use c00\log\channel\LogChannelOnScreen;
 use c00\log\channel\LogChannelStdError;
 use c00\log\channel\sql\LogChannelSQL;
-use c00\log\channel\sql\SqlChannelSettings;
 use c00\log\ChannelSettings;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogSettings;
+use PHPUnit\Framework\TestCase;
 
-class LogTest extends \PHPUnit_Framework_TestCase
+class LogTest extends TestCase
 {
 
-    public function testInit(){
+	public function testInit(){
         Log::init();
         Log::debug("first message");
         Log::info("info message");
@@ -56,7 +50,11 @@ class LogTest extends \PHPUnit_Framework_TestCase
         $settings->channelSettings[] = ChannelSettings::newInstance(LogChannelOnScreen::class, $settings->level);
 
         //SQL channel
-        $settings->channelSettings[] = new SqlChannelSettings();
+	    $database = "test_log";
+	    $username = "coo";
+	    $password = "123";
+	    $host = "127.0.0.1";
+		$settings->addSqlChannelSettings($host, $username, $password, $database);
 
         Log::init($settings);
 

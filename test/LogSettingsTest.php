@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Co
- * Date: 18/06/2016
- * Time: 01:12
- */
 
 namespace test;
 
@@ -13,8 +7,9 @@ use c00\log\channel\sql\SqlChannelSettings;
 use c00\log\ChannelSettings;
 use c00\log\Log;
 use c00\log\LogSettings;
+use PHPUnit\Framework\TestCase;
 
-class LogSettingsTest extends \PHPUnit_Framework_TestCase
+class LogSettingsTest extends TestCase
 {
     public $tmpDir = __DIR__ . "/../tmp/";
     public $key = "test-settings";
@@ -68,14 +63,17 @@ class LogSettingsTest extends \PHPUnit_Framework_TestCase
 
     public function testSqlShorthand(){
         $database = "test_log";
-        $username = "root";
-        $password = "";
-        $host = "localhost";
+        $username = "coo";
+        $password = "123";
+        $host = "127.0.0.1";
 
         $settings = LogSettings::newInstance()
-            ->addSqlChannelSettings($database, $username, $password, $host);
+            ->addSqlChannelSettings($host, $username, $password, $database);
 
         Log::init($settings);
+
+        //Assert that we didn't fail
+	    $this->assertTrue(true);
     }
 
 }
