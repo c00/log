@@ -10,8 +10,8 @@ It has the potential to easily log to different channels (DB, on screen, stdErro
 
 ```
 Log::init();
-Log::debug("A debug message");
-Log::error("Something went wrong!");
+Log::debug("startup", A debug message");
+Log::error("startup", "Something went wrong!");
 
 echo Log::getLogForView()->toString();
 ``` 
@@ -23,9 +23,9 @@ IP: 127.0.0.1
 ID: request_383b556e
 Date: 2016-11-11 03:31:02
 ---------------
-2016-11-11 03:31:02 DEBUG: A debug message
+2016-11-11 03:31:02 DEBUG: [startup] A debug message
     D:\www\log\test\LogTest.php line: 19
-2016-11-11 03:31:02 ERROR: Something went wrong!
+2016-11-11 03:31:02 ERROR: [startup] Something went wrong!
     D:\www\log\test\LogTest.php line: 20
 ```
 
