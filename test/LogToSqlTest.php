@@ -4,58 +4,32 @@ namespace test;
 
 use c00\common\CovleDate;
 use c00\log\channel\sql\Database;
-use c00\log\channel\sql\SqlSettings;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogQuery;
-use c00\log\LogSettings;
 use PHPUnit\Framework\TestCase;
 
 class LogToSqlTest extends TestCase
 {
-    /** @var \PDO */
-    private $pdo;
+	const TAG = 'test';
 
     /** @var  Database */
     private $db;
 
+    /** @var TestHelper */
+    private $th;
+
     public function setUp(){
-        $database = "test_log";
-        $username = "root";
-        $password = "";
-        $host = "127.0.0.1";
+        $this->th = new TestHelper();
+	    $this->th->setupSql();
 
-        //Setup logging
-        $settings = LogSettings::new(false)
-            ->addSqlChannelSettings($host, $username, $password, $database, null, Log::EXTRA_DEBUG);
-        $settings->defaultLevel = Log::INFO;
-
-        /** @var SqlSettings $sqlSettings */
-        $sqlSettings = $settings->getChannelSettings(SqlSettings::class);
-
-        //Setup database
-        $this->pdo = new \PDO(
-            "mysql:charset=utf8mb4;host={$sqlSettings->host};dbname={$sqlSettings->database}",
-            $sqlSettings->username,
-            $sqlSettings->password,
-            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, \PDO::ATTR_EMULATE_PREPARES => false]
-        );
-
-        //empty logs
-        $sql = "SET foreign_key_checks = 0; TRUNCATE TABLE `log_bag`; TRUNCATE TABLE `log_item`;";
-        $this->pdo->exec($sql);
-
-        //DB for getting info
-        $this->db = new Database($sqlSettings);
-        $this->db->setupTables();
-
-        Log::init($settings);
+	    $this->db = $this->th->db;
     }
 
     public function testInit(){
-        Log::debug("first message");
-        Log::info("info message");
-        Log::error("error message");
+        Log::debug(self::TAG, "first message");
+        Log::info(self::TAG, "info message");
+        Log::error(self::TAG, "error message");
 
         Log::flush();
 
@@ -74,7 +48,7 @@ class LogToSqlTest extends TestCase
         //flush again to see if it generates an error
         Log::flush();
 
-        Log::info("A fourth message");
+        Log::info(self::TAG, "A fourth message");
         Log::flush();
         $logs = $this->db->getLastBag();
 
@@ -89,7 +63,7 @@ class LogToSqlTest extends TestCase
     }
 
     public function testQueryLast() {
-        $this->addTestLogs();
+        $this->th->addTestLogs();
 
         $q = new LogQuery();
         //Only a since date, that's after stuff was added. Should return nothing.
@@ -125,25 +99,7 @@ class LogToSqlTest extends TestCase
 
     }
 
-    private function addTestLogs() {
-        Log::extraDebug("extra debug message1");
-        Log::debug("debug message1");
-        Log::info("info message1");
-        Log::warning("warning message1");
-        Log::error("error message1");
-        Log::extraDebug("extra debug message2");
-        Log::debug("debug message2");
-        Log::info("info message2");
-        Log::warning("warning message2");
-        Log::error("error message2");
-        Log::extraDebug("extra debug message3");
-        Log::debug("debug message3");
-        Log::info("info message3");
-        Log::warning("warning message3");
-        Log::error("error message3");
 
-        Log::flush();
-    }
 
 
 }

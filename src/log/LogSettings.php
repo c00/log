@@ -19,7 +19,11 @@ class LogSettings extends AbstractSettings
     /** @var AbstractChannelSettings[] */
     public $channelSettings = [];
 
-    public function loadDefaults()
+    public function __construct( string $key = self::DEFAULT_KEY, $path = __DIR__ ) {
+	    parent::__construct( $key, $path );
+    }
+
+	public function loadDefaults()
     {
         $this->defaultLevel = Log::EXTRA_DEBUG;
 

@@ -32,9 +32,4 @@ Date: 2016-11-11 03:31:02
 # todo 
 
 Among other things:
-- Make TestHelper and settings file
-- Add tags to messages
-- Increment log messages correctly (microtime it, or just keep a record.)
 - Create a front-end
-- fix errors in tests.
-- Add http VERB to log.

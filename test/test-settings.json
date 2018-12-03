@@ -1,0 +1,30 @@
+{
+  "defaultLevel": 5,
+  "channelSettings": {
+    "c00\\log\\channel\\onScreen\\OnScreenSettings": {
+      "class": "c00\\log\\channel\\onScreen\\OnScreenChannel",
+      "level": 5,
+      "load": true,
+      "__class": "c00\\log\\channel\\onScreen\\OnScreenSettings"
+    },
+    "c00\\log\\channel\\stdError\\StdErrorSettings": {
+      "class": "c00\\log\\channel\\stdError\\StdErrorChannel",
+      "level": 1,
+      "load": true,
+      "__class": "c00\\log\\channel\\stdError\\StdErrorSettings"
+    },
+    "c00\\log\\channel\\sql\\SqlSettings": {
+      "class": "c00\\log\\channel\\sql\\SqlChannel",
+      "username": "coo",
+      "password": "123",
+      "host": "127.0.0.1",
+      "database": "test_log_v2",
+      "tablePrefix": "log_",
+      "level": 5,
+      "load": true,
+      "__class": "c00\\log\\channel\\sql\\SqlSettings"
+    }
+  },
+  "key": "test-settings",
+  "path": "\/tmp\/"
+}

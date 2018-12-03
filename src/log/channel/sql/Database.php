@@ -19,6 +19,7 @@ class Database extends AbstractDatabase {
 
     const TABLE_BAG = 'bag';
     const TABLE_ITEM = 'item';
+    const TAG = 'log-database';
 
     /** @var SqlSettings */
     private $settings = null;
@@ -32,17 +33,19 @@ class Database extends AbstractDatabase {
         try {
             $this->connect($settings->host, $settings->username, $settings->password, $settings->database, $settings->port);
         } catch (PDOException $e) {
-            Log::error("Cannot connect to Log Database!");
-            Log::error($e->getMessage());
-            Log::debug("Error", $e);
+            Log::error(self::TAG, "Cannot connect to Log Database!");
+            Log::error(self::TAG, $e->getMessage());
+            Log::debug(self::TAG, "Error", $e);
         }
     }
 
-    /** Sets up the tables needed for logging
-     *
-     * @return bool Returns true if tables were created. Returns false if tables already existed.
-     */
-    public function setupTables() : bool
+	/** Sets up the tables needed for logging
+	 *
+	 * @param bool $force Drop and recreate tables even if they already exist.
+	 *
+	 * @return bool Returns true if tables were created. Returns false if tables already existed.
+	 */
+    public function setupTables($force = false) : bool
     {
         $tables = [
             $this->getTable("bag"),
@@ -50,7 +53,7 @@ class Database extends AbstractDatabase {
         ];
 
         //Check if the tables exist
-        if (!$this->hasTables($tables)){
+        if (!$this->hasTables($tables) || $force){
             $fixture = file_get_contents(__DIR__ . '/fixture.sql');
             $fixture = str_replace("{{PREFIX}}", $this->settings->tablePrefix, $fixture);
             $this->db->exec($fixture);
@@ -79,7 +82,7 @@ class Database extends AbstractDatabase {
 
         if (!$this->bagExists($bag->id)){
             $q = Qry::insert($this->getTable(self::TABLE_BAG), $bag);
-            $this->insertRow($q);
+            $bag->id = $this->insertRow($q);
         }
 
         foreach ($bag->logItems as $item) {
@@ -117,7 +120,7 @@ class Database extends AbstractDatabase {
         $q = Qry::select()
             ->from($this->getTable(self::TABLE_ITEM))
             ->where('bagId', '=', $bagId)
-            ->orderBy('order', true)
+            ->orderBy('id', true)
             ->asClass(LogItem::class);
 
         return $this->getRows($q);

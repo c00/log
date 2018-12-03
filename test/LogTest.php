@@ -13,12 +13,13 @@ use PHPUnit\Framework\TestCase;
 
 class LogTest extends TestCase
 {
+	const TAG_TEST = 'test';
 
 	public function testInit(){
         Log::init();
-        Log::debug("first message");
-        Log::info("info message");
-        Log::error("error message");
+        Log::debug(self::TAG_TEST, "first message");
+        Log::info(self::TAG_TEST, "info message");
+        Log::error(self::TAG_TEST, "error message");
 
         $logs = Log::getLogForView();
 
@@ -30,7 +31,11 @@ class LogTest extends TestCase
         $this->assertEquals(Log::DEBUG, $logs->logItems[0]->level);
         $this->assertEquals(Log::INFO, $logs->logItems[1]->level);
         $this->assertEquals(Log::ERROR, $logs->logItems[2]->level);
-    }
+
+		$this->assertEquals(self::TAG_TEST, $logs->logItems[0]->tag);
+		$this->assertEquals(self::TAG_TEST, $logs->logItems[1]->tag);
+		$this->assertEquals(self::TAG_TEST, $logs->logItems[2]->tag);
+	}
 
 	/**
 	 * @throws \c00\log\LogException

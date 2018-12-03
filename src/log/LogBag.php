@@ -15,6 +15,7 @@ class LogBag extends AbstractDatabaseObject
     public $url;
     public $ip;
     public $userId;
+	public $verb;
 
     /** @var CovleDate */
     public $date;
@@ -22,7 +23,8 @@ class LogBag extends AbstractDatabaseObject
     public $logItems;
 
     protected $_dataTypes = [
-        'date' => CovleDate::class
+        'date' => CovleDate::class,
+        'id' => 'int'
     ];
 
     protected $_ignore = ['logItems'];
@@ -47,10 +49,10 @@ class LogBag extends AbstractDatabaseObject
 
     public function CreateBagInfo() {
         $this->url = $this->getFullUrl();
-        $this->id = "req_" . bin2hex(random_bytes(12));
+        $this->verb = $_SERVER['REQUEST_METHOD'] ?? null;
+	    $this->ip = $_SERVER['REMOTE_ADDR'] ?? null;
         $this->date = new CovleDate();
-
-        if (isset($_SERVER['REMOTE_ADDR'])) $this->ip = $_SERVER['REMOTE_ADDR'];
+        //$this->bagId = "req_" . bin2hex(random_bytes(16));
     }
 
     public function getFullUrl($url_encode = false) {
@@ -82,7 +84,7 @@ class LogBag extends AbstractDatabaseObject
     public function toString()
     {
         $strings = [];
-        $strings[] = "Url: {$this->url}";
+        $strings[] = "URL: {$this->verb} {$this->url}";
         $strings[] = "IP: {$this->ip}";
         $strings[] = "ID: {$this->id}";
         $strings[] = "Date: {$this->date->toString()}";

@@ -3,46 +3,58 @@
 namespace test;
 
 
+use c00\log\channel\sql\Database;
+use c00\log\channel\sql\SqlSettings;
 use c00\log\Log;
 use c00\log\LogSettings;
 
 class TestHelper {
+	const TAG = 'test-helper';
+
+	/** @var Database */
+	public $db;
+	/** @var LogSettings */
+	public $settings;
 
 	public function setupSql() {
-		//run fixture
-		$database = "test_log";
-		$username = "root";
-		$password = "";
-		$host = "127.0.0.1";
-
 		//Setup logging
-		$settings               = LogSettings::new(false)
-		                       ->addSqlChannelSettings($host, $username, $password, $database, null, Log::EXTRA_DEBUG);
-		$settings->defaultLevel = Log::INFO;
+		$this->settings = new LogSettings('test-settings', __DIR__);
+		$this->settings->load();
 
-		/** @var SqlChannelSettings $sqlSettings */
-		$sqlSettings = $settings->getChannelSettings(LogChannelSQL::class);
 
-		//Setup database
-		$this->pdo = new \PDO(
-			"mysql:charset=utf8mb4;host={$sqlSettings->host};dbname={$sqlSettings->database}",
-			$sqlSettings->username,
-			$sqlSettings->password,
-			[\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION, \PDO::ATTR_EMULATE_PREPARES => false]
-		);
-
-		//empty logs
-		$sql = "SET foreign_key_checks = 0; TRUNCATE TABLE `log_bag`; TRUNCATE TABLE `log_item`;";
-		$this->pdo->exec($sql);
+		/** @var SqlSettings $sqlSettings */
+		$sqlSettings = $this->settings->getChannelSettings(SqlSettings::class);
 
 		//DB for getting info
 		$this->db = new Database($sqlSettings);
-		$this->db->setupTables();
+		$this->db->setupTables(true);
 
-		Log::init($settings);
+		Log::init($this->settings);
+
+		return $this;
 	}
 
-	public function getSqlSettings() {
+	public function addTestLogs() {
+		Log::extraDebug(self::TAG, "extra debug message1");
+		Log::debug(self::TAG, "debug message1");
+		Log::info(self::TAG, "info message1");
+		Log::warning(self::TAG, "warning message1");
+		Log::error(self::TAG, "error message1");
+		Log::extraDebug(self::TAG, "extra debug message2");
+		Log::debug(self::TAG, "debug message2");
+		Log::info(self::TAG, "info message2");
+		Log::warning(self::TAG, "warning message2");
+		Log::error(self::TAG, "error message2");
+		Log::extraDebug(self::TAG, "extra debug message3");
+		Log::debug(self::TAG, "debug message3");
+		Log::info(self::TAG, "info message3");
+		Log::warning(self::TAG, "warning message3");
+		Log::error(self::TAG, "error message3");
 
+		Log::flush();
+
+		return $this;
 	}
+
+
 }

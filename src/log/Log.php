@@ -14,6 +14,10 @@ class Log {
     const DEBUG = 4;
     const EXTRA_DEBUG = 5;
 
+    const TAG_DEFAULT = 'default';
+    const TAG_FATAL = 'fatal';
+    const TAG_STD_ERROR = 'stdError';
+
     const DEFAULT_KEY = "log_default";
 
     /** @var iLogChannel[] */
@@ -43,10 +47,10 @@ class Log {
             $error = error_get_last();
             if ($error !== null && $error['type'] === 1){
                 //fatal
-                Log::error("Fatal Error: " . $error['message'] .
+                Log::error(self::TAG_FATAL, "Fatal Error: " . $error['message'] .
                     " File: " . $error['file'] .
                     " Line: " . $error['line']);
-                Log::debug("Error", $error);
+                Log::debug(self::TAG_FATAL, "Error", $error);
             }
 
             //flush
@@ -62,11 +66,11 @@ class Log {
             $error['line'] = $errline;
             $error['context'] = $errcontext;
 
-            Log::error("Error Type: " .$error['type'] .
+            Log::error(self::TAG_STD_ERROR, "Error Type: " .$error['type'] .
                 " Message: " . $error['message'] .
                 " File:" . $error['file'] .
                 " Line: " . $error['line']);
-            Log::debug("Error", $error);
+            Log::debug(self::TAG_STD_ERROR, "Error", $error);
 
             //execute standard PHP stuff
             return false;
@@ -178,14 +182,15 @@ class Log {
     /**
      * Log an error message.
      *
+     * @param $tag string A label or tag to group log messages
      * @param string $message The error message to log.
      * @return int Will return 1.
      */
-    public static function error($message) {
+    public static function error($tag, $message) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = LogItem::newItem(self::ERROR, $message, $trace);
+        $item = LogItem::newItem(self::ERROR, $message, $tag, $trace);
 
         $logger->logToChannels($item);
         return 1;
@@ -194,14 +199,15 @@ class Log {
     /**
      * Log a warning message.
      *
+     * @param $tag string A label or tag to group log messages
      * @param string $message The warning message to log.
      * @return int returns 1;
      */
-    public static function warning($message) {
+    public static function warning($tag, $message) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = LogItem::newItem(self::WARNING, $message, $trace);
+        $item = LogItem::newItem(self::WARNING, $message, $tag, $trace);
 
         $logger->logToChannels($item);
         return 1;
@@ -210,32 +216,36 @@ class Log {
     /**
      * Logs an info message
      *
+     * @param $tag string A label or tag to group log messages
      * @param string $message The info message to log.
      * @return int returns 1.
      */
-    public static function info($message) {
+    public static function info($tag, $message) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = LogItem::newItem(self::INFO, $message, $trace);
+        $item = LogItem::newItem(self::INFO, $message, $tag, $trace);
 
         $logger->logToChannels($item);
         return 1;
     }
 
-    /**
-     * Logs a debug message.
-     *
-     * Can also log an object as second parameter.
-     * @param string $message The debug message to log.
-     * @param mixed $o The object to log.
-     * @return int
-     */
-    public static function debug($message, $o = 0) {
+	/**
+	 * Logs a debug message.
+	 *
+	 * Can also log an object as second parameter.
+	 *
+	 * @param $tag string A label or tag to group log messages
+	 * @param string $message The debug message to log.
+	 * @param mixed $o The object to log.
+	 *
+	 * @return int
+	 */
+    public static function debug($tag, $message, $o = 0) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = LogItem::newItem(self::DEBUG, $message, $trace, $o);
+        $item = LogItem::newItem(self::DEBUG, $message, $tag, $trace, $o);
 
         $logger->logToChannels($item);
         return 1;
@@ -245,15 +255,16 @@ class Log {
      * Logs an extra debug message.
      *
      * Can also log an object as second parameter. Should log verbose information.
+     * @param $tag string A label or tag to group log messages
      * @param string $message The extra debug message to log.
      * @param mixed $o The object to log.
      * @return int
      */
-    public static function extraDebug($message, $o = 0) {
+    public static function extraDebug($tag, $message, $o = 0) {
         $logger = Log::getInstance();
 
         $trace = debug_backtrace();
-        $item = LogItem::newItem(self::EXTRA_DEBUG, $message, $trace, $o);
+        $item = LogItem::newItem(self::EXTRA_DEBUG, $message, $tag, $trace, $o);
 
         $logger->logToChannels($item);
         return 1;

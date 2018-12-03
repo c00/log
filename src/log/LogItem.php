@@ -18,21 +18,21 @@ class LogItem extends AbstractDatabaseObject
     public $level;
     public $object;
     public $bagId;
-    public $order;
+    public $tag;
 
     /** @var CovleDate */
     public $date;
 
     protected $_dataTypes = [
         'date' => CovleDate::class,
-        'order' => 'int'
+        'id' => 'int'
     ];
 
-    public static function newItem($level, $message, $trace, $object = 0) : LogItem
+    public static function newItem($level, $message, $tag, $trace, $object = 0) : LogItem
     {
         $item = new LogItem();
 
-        $item->id = bin2hex(random_bytes(12));
+		$item->tag = $tag;
         $item->level = $level;
         $item->message = $message;
         $item->trace = $item->GetTrace($trace);
@@ -57,6 +57,7 @@ class LogItem extends AbstractDatabaseObject
     public function toString(){
         $string = $this->date->toString() . " " .
             Log::levelString($this->level) . ": " .
+            "[{$this->tag}] " .
             $this->message . PHP_EOL . "\t" .
             $this->caller;
 

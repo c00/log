@@ -10,28 +10,26 @@ SET NAMES utf8mb4;
 
 DROP TABLE IF EXISTS `{{PREFIX}}bag`;
 CREATE TABLE `{{PREFIX}}bag` (
-  `id` varchar(30) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `url` varchar(255) DEFAULT NULL,
   `ip` varchar(100) DEFAULT NULL,
+  `verb` varchar(10) DEFAULT NULL,
   `userId` varchar(30) DEFAULT NULL,
-  `date` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  `date` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 DROP TABLE IF EXISTS `{{PREFIX}}item`;
 CREATE TABLE `{{PREFIX}}item` (
-  `id` varchar(30) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `caller` text NOT NULL,
   `trace` text NOT NULL,
+  `tag` varchar(100) NOT NULL,
   `message` text,
   `level` int(11) NOT NULL,
   `object` text,
-  `bagId` varchar(30) NOT NULL,
+  `bagId` int NOT NULL,
   `date` int(11) NOT NULL,
-  `order` int(11) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `order` (`order`),
   KEY `bagId` (`bagId`),
   CONSTRAINT `{{PREFIX}}item_ibfk_1` FOREIGN KEY (`bagId`) REFERENCES `{{PREFIX}}bag` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

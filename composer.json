@@ -14,7 +14,10 @@
         "phpunit/phpunit": "7.*"
     },
     "autoload": {
-        "psr-4": { "c00\\": "src/" }
+        "psr-4": {
+            "c00\\": "src/",
+            "test\\": "test/"
+        }
     },
     "require": {
         "c00/common": "0.x"
