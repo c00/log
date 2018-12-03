@@ -7,7 +7,7 @@ use c00\common\AbstractSettings;
 use c00\log\channel\AbstractChannelSettings;
 use c00\log\channel\onScreen\OnScreenSettings;
 use c00\log\channel\stdError\StdErrorSettings;
-use c00\log\channel\sql\SqlAbstractChannelSettings;
+use c00\log\channel\sql\SqlSettings;
 
 class LogSettings extends AbstractSettings
 {
@@ -41,17 +41,18 @@ class LogSettings extends AbstractSettings
         return $s;
     }
 
-    public function addSqlChannelSettings($host, $username, $password, $database, $port = null, $level = Log::DEBUG, $tablePrefix = "log_"){
-        $s = new SqlAbstractChannelSettings();
+    public function addSqlChannelSettings($host, $username, $password, $database, $port = null, $level = null, $tablePrefix = null){
+        $s = new SqlSettings();
         $s->database = $database;
         $s->username = $username;
         $s->password = $password;
         $s->host = $host;
-        $s->port = $port;
-        $s->level = $level;
-        $s->tablePrefix = $tablePrefix;
 
-        $this->channelSettings[] = $s;
+        if ($port) $s->port = $port;
+        if ($level) $s->level = $level;
+        if ($tablePrefix) $s->tablePrefix = $tablePrefix;
+
+        $this->addChannelSettings($s);
 
         return $this;
     }

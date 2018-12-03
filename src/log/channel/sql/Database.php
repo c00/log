@@ -20,10 +20,11 @@ class Database extends AbstractDatabase {
     const TABLE_BAG = 'bag';
     const TABLE_ITEM = 'item';
 
-    /** @var SqlAbstractChannelSettings */
+    /** @var SqlSettings */
     private $settings = null;
 
-    function __construct(SqlAbstractChannelSettings $settings) {
+    function __construct(SqlSettings $settings) {
+    	parent::__construct();
 
         $this->settings = $settings;
 

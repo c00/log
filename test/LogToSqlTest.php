@@ -4,8 +4,7 @@ namespace test;
 
 use c00\common\CovleDate;
 use c00\log\channel\sql\Database;
-use c00\log\channel\sql\LogChannelSQL;
-use c00\log\channel\sql\SqlAbstractChannelSettings;
+use c00\log\channel\sql\SqlSettings;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogQuery;
@@ -27,12 +26,12 @@ class LogToSqlTest extends TestCase
         $host = "127.0.0.1";
 
         //Setup logging
-        $settings               = LogSettings::new(false)
+        $settings = LogSettings::new(false)
             ->addSqlChannelSettings($host, $username, $password, $database, null, Log::EXTRA_DEBUG);
         $settings->defaultLevel = Log::INFO;
 
-        /** @var SqlAbstractChannelSettings $sqlSettings */
-        $sqlSettings = $settings->getChannelSettings(LogChannelSQL::class);
+        /** @var SqlSettings $sqlSettings */
+        $sqlSettings = $settings->getChannelSettings(SqlSettings::class);
 
         //Setup database
         $this->pdo = new \PDO(
@@ -74,7 +73,6 @@ class LogToSqlTest extends TestCase
 
         //flush again to see if it generates an error
         Log::flush();
-
 
         Log::info("A fourth message");
         Log::flush();
@@ -128,7 +126,6 @@ class LogToSqlTest extends TestCase
     }
 
     private function addTestLogs() {
-        Log::init();
         Log::extraDebug("extra debug message1");
         Log::debug("debug message1");
         Log::info("info message1");

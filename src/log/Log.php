@@ -83,7 +83,8 @@ class Log {
 	    $logger->channels = [];
 	    $logger->logBag = new LogBag([], true);
 
-        foreach ($settings->channelSettings as $class => $channelSetting) {
+        foreach ($settings->channelSettings as $channelSetting) {
+        	$class = $channelSetting->class;
             $channel = new $class($channelSetting);
             $logger->setChannel($channel);
         }

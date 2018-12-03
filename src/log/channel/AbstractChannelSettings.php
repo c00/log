@@ -6,6 +6,10 @@ abstract class AbstractChannelSettings
 {
     public $level;
     public $load = true;
+	/**
+	 * @var string The class of the channel to instantiate.
+	 */
+    public $class;
 
     public function __construct()
     {

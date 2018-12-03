@@ -2,10 +2,10 @@
 
 namespace test;
 
-use c00\log\channel\LogChannelOnScreen;
-use c00\log\channel\StdErrorChannel;
-use c00\log\channel\sql\LogChannelSQL;
-use c00\log\AbstractChannelSettings;
+use c00\log\channel\onScreen\OnScreenChannel;
+use c00\log\channel\onScreen\OnScreenSettings;
+use c00\log\channel\sql\SqlChannel;
+use c00\log\channel\stdError\StdErrorChannel;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogSettings;
@@ -32,22 +32,28 @@ class LogTest extends TestCase
         $this->assertEquals(Log::ERROR, $logs->logItems[2]->level);
     }
 
+	/**
+	 * @throws \c00\log\LogException
+	 */
     public function testChannels(){
         Log::init();
 
-        $onScreen = Log::getChannel(LogChannelOnScreen::class);
-        $this->assertTrue($onScreen instanceof LogChannelOnScreen);
+        $onScreen = Log::getChannel(OnScreenChannel::class);
+        $this->assertTrue($onScreen instanceof OnScreenChannel);
 
         $stdError = Log::getChannel(StdErrorChannel::class);
         $this->assertTrue( $stdError instanceof StdErrorChannel);
     }
 
+	/**
+	 * @throws \c00\log\LogException
+	 */
     public function testChannels2(){
-        $settings               = new LogSettings('app', __DIR__);
+        $settings = new LogSettings('app', __DIR__);
         $settings->defaultLevel = Log::INFO;
 
         //On screen channel
-        $settings->channelSettings[] = AbstractChannelSettings::newInstance(LogChannelOnScreen::class, $settings->defaultLevel);
+	    $settings->addChannelSettings(OnScreenSettings::new());
 
         //SQL channel
 	    $database = "test_log";
@@ -58,14 +64,14 @@ class LogTest extends TestCase
 
         Log::init($settings);
 
-        $onScreen = Log::getChannel(LogChannelOnScreen::class);
-        $this->assertTrue($onScreen instanceof LogChannelOnScreen);
+        $onScreen = Log::getChannel(OnScreenChannel::class);
+        $this->assertTrue($onScreen instanceof OnScreenChannel);
 
-        $stdError = Log::getChannel(StdErrorChannel::class);
-        $this->assertNull($stdError);
+        $sql = Log::getChannel(SqlChannel::class);
+        $this->assertTrue( $sql instanceof SqlChannel);
 
-        $sql = Log::getChannel(LogChannelSQL::class);
-        $this->assertTrue($sql instanceof LogChannelSQL);
+        $this->expectExceptionMessage("Channel not found");
+	    Log::getChannel(StdErrorChannel::class);
     }
 
 

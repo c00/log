@@ -3,8 +3,8 @@
 namespace test;
 
 use c00\log\channel\onScreen\OnScreenSettings;
-use c00\log\channel\sql\LogChannelSQL;
-use c00\log\channel\sql\SqlAbstractChannelSettings;
+use c00\log\channel\sql\SqlChannel;
+use c00\log\channel\sql\SqlSettings;
 use c00\log\channel\stdError\StdErrorSettings;
 use c00\log\Log;
 use c00\log\LogSettings;
@@ -109,9 +109,9 @@ class LogSettingsTest extends TestCase
         $loaded = new LogSettings($this->key, $this->tmpDir);
         $loaded->load();
 
-        /** @var SqlAbstractChannelSettings $loadedSqlChannelSettings */
-        $loadedSqlChannelSettings = $loaded->getChannelSettings(LogChannelSQL::class);
-        $this->assertEquals(SqlAbstractChannelSettings::class, get_class($loadedSqlChannelSettings));
+        /** @var SqlSettings $loadedSqlChannelSettings */
+        $loadedSqlChannelSettings = $loaded->getChannelSettings(SqlChannel::class);
+        $this->assertEquals(SqlSettings::class, get_class($loadedSqlChannelSettings));
         $this->assertEquals("foo", $loadedSqlChannelSettings->password);
 
     }

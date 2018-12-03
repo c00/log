@@ -2,8 +2,8 @@
 namespace c00\log\channel\sql;
 
 use c00\log\channel\iLogChannel;
-use c00\log\AbstractChannelSettings;
 use c00\log\LogBag;
+use c00\log\LogException;
 use c00\log\LogItem;
 
 /**
@@ -11,9 +11,9 @@ use c00\log\LogItem;
  *
  * @author Coo
  */
-class LogChannelSQL implements iLogChannel {
+class SqlChannel implements iLogChannel {
 
-    /** @var  AbstractChannelSettings */
+    /** @var  SqlSettings */
     public $settings;
 
     /** @var  Database */
@@ -22,8 +22,15 @@ class LogChannelSQL implements iLogChannel {
     /** @var LogBag */
     private $logBag;
 
-    public function __construct(AbstractChannelSettings $settings) {
-        if (! $settings instanceof SqlAbstractChannelSettings) throw new \Exception("No settings");
+	/**
+	 * LogChannelSQL constructor.
+	 *
+	 * @param SqlSettings $settings
+	 *
+	 * @throws \Exception
+	 */
+    public function __construct($settings) {
+        if (!$settings instanceof SqlSettings) throw LogException::new("No settings for SQL logging");
 
         $this->db = new Database($settings);
         $this->settings = $settings;

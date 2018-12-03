@@ -1,6 +1,7 @@
 <?php
-namespace c00\log\channel;
-use c00\log\channel\stdError\StdErrorSettings;
+namespace c00\log\channel\stdError;
+
+use c00\log\channel\iLogChannel;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogItem;
