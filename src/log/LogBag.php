@@ -61,8 +61,8 @@ class LogBag extends AbstractDatabaseObject
         } else {
             $result = "http://";
         }
-        $result .= filter_input(INPUT_SERVER, "HTTP_HOST", FILTER_SANITIZE_URL)
-            . filter_input(INPUT_SERVER, "REQUEST_URI", FILTER_SANITIZE_URL);
+
+		$result .= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
         if ($url_encode) {
             return urlencode($result);
