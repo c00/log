@@ -56,13 +56,20 @@ class LogBag extends AbstractDatabaseObject
     }
 
     public function getFullUrl($url_encode = false) {
-        if (isset($_SERVER['HTTPS'])) {
-            $result = "https://";
-        } else {
-            $result = "http://";
-        }
+    	if (php_sapi_name() === 'cli') {
+    		$result = 'cli';
+		} else {
+			if (isset($_SERVER['HTTPS'])) {
+				$result = "https://";
+			} else {
+				$result = "http://";
+			}
 
-		$result .= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$host = $_SERVER['HTTP_HOST'] ?? 'no-host';
+			$uri = $_SERVER['REQUEST_URI'] ?? 'no-uri';
+
+			$result .= $host . $uri;
+		}
 
         if ($url_encode) {
             return urlencode($result);
