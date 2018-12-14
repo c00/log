@@ -39,6 +39,10 @@ class Database extends AbstractDatabase {
         }
     }
 
+    public function isConnected(): bool {
+    	return $this->connected;
+	}
+
 	/** Sets up the tables needed for logging
 	 *
 	 * @param bool $force Drop and recreate tables even if they already exist.
