@@ -14,4 +14,5 @@ class SqlSettings extends AbstractChannelSettings
     public $database = 'log_default';
     public $port = null;
     public $tablePrefix = "log_";
+    public $name = "myDatabase";
 }
