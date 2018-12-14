@@ -33,6 +33,7 @@ class Database extends AbstractDatabase {
         try {
             $this->connect($settings->host, $settings->username, $settings->password, $settings->database, $settings->port);
         } catch (PDOException $e) {
+        	$this->connected = false;
             Log::error(self::TAG, "Cannot connect to Log Database!");
             Log::error(self::TAG, $e->getMessage());
             Log::debug(self::TAG, "Error", $e);
@@ -40,7 +41,7 @@ class Database extends AbstractDatabase {
     }
 
     public function isConnected(): bool {
-    	return $this->connected;
+    	return (bool) $this->connected;
 	}
 
 	/** Sets up the tables needed for logging
