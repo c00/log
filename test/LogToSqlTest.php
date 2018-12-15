@@ -4,9 +4,9 @@ namespace test;
 
 use c00\common\CovleDate;
 use c00\log\channel\sql\Database;
+use c00\log\channel\sql\LogQuery;
 use c00\log\Log;
 use c00\log\LogBag;
-use c00\log\LogQuery;
 use PHPUnit\Framework\TestCase;
 
 class LogToSqlTest extends TestCase
@@ -80,7 +80,7 @@ class LogToSqlTest extends TestCase
         $this->assertEquals(15, count($bags[0]->logItems));
 
         //Get only errors
-        $q->includeLevels = [Log::ERROR];
+        $q->levels = [Log::ERROR];
 
         $bags = $this->db->queryBags($q);
         $this->assertEquals(3, count($bags[0]->logItems));
@@ -89,12 +89,12 @@ class LogToSqlTest extends TestCase
         }
 
         //Get errors and debugs
-        $q->includeLevels = [Log::ERROR, Log::DEBUG];
+        $q->levels = [Log::ERROR, Log::DEBUG];
 
         $bags = $this->db->queryBags($q);
         $this->assertEquals(6, count($bags[0]->logItems));
         foreach ($bags[0]->logItems as $logItem) {
-            $this->assertTrue(in_array($logItem->level, $q->includeLevels));
+            $this->assertTrue(in_array($logItem->level, $q->levels));
         }
 
     }

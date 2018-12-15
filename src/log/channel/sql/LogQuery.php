@@ -1,6 +1,6 @@
 <?php
 
-namespace c00\log;
+namespace c00\log\channel\sql;
 
 use c00\common\CovleDate;
 
@@ -12,17 +12,18 @@ use c00\common\CovleDate;
  */
 class LogQuery
 {
-    const DEFAULT_LIMIT = 100;
+    const DEFAULT_PER_PAGE = 100;
 
     /** @var CovleDate */
     public $since;
     /** @var CovleDate */
     public $until;
 
-    public $includeLevels = [];
+    public $levels = [];
+    public $tags = [];
 
     public $page = 0;
-    public $limit = self::DEFAULT_LIMIT;
+    public $limit = self::DEFAULT_PER_PAGE;
 
     public function __construct()
     {

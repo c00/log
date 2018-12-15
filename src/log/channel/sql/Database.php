@@ -2,11 +2,9 @@
 namespace c00\log\channel\sql;
 
 use c00\common\AbstractDatabase;
-use c00\common\CovleDate;
 use c00\log\Log;
 use c00\log\LogBag;
 use c00\log\LogItem;
-use c00\log\LogQuery;
 use c00\QueryBuilder\Qry;
 use \PDOException;
 
@@ -81,6 +79,12 @@ class Database extends AbstractDatabase {
         return $this->rowExists($q);
     }
 
+	/**
+	 * @param LogBag $bag
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 */
     public function saveBag(LogBag $bag) {
 
         $this->beginTransaction();
@@ -100,12 +104,20 @@ class Database extends AbstractDatabase {
         return true;
     }
 
+	/**
+	 * @param LogItem $item
+	 *
+	 * @throws \Exception
+	 */
     public function saveItem(LogItem $item) {
         $q = Qry::insert($this->getTable(self::TABLE_ITEM), $item);
         $this->insertRow($q);
     }
 
-
+	/**
+	 * @return LogBag
+	 * @throws \c00\QueryBuilder\QueryBuilderException When row doesn't exist
+	 */
     public function getLastBag() : LogBag
     {
         $q = Qry::select()
@@ -121,6 +133,12 @@ class Database extends AbstractDatabase {
         return $bag;
     }
 
+	/**
+	 * @param $bagId
+	 *
+	 * @return array
+	 * @throws \c00\QueryBuilder\QueryBuilderException
+	 */
     protected function getItems($bagId){
         $q = Qry::select()
             ->from($this->getTable(self::TABLE_ITEM))
@@ -131,6 +149,12 @@ class Database extends AbstractDatabase {
         return $this->getRows($q);
     }
 
+	/**
+	 * @param $bagId
+	 *
+	 * @return LogBag
+	 * @throws \c00\QueryBuilder\QueryBuilderException
+	 */
     public function getBag($bagId) {
         $q = Qry::select()
             ->from($this->getTable(self::TABLE_BAG))
@@ -145,48 +169,46 @@ class Database extends AbstractDatabase {
         return $bag;
     }
 
-    public function getLastBags($number) {
-        $q = Qry::select()
-            ->from($this->getTable(self::TABLE_BAG))
-            ->orderBy('date', false)
-            ->limit($number)
-            ->asClass(LogBag::class);
+	/**
+	 * @param int[] $ids
+	 *
+	 * @return LogBag[]
+	 * @throws \c00\QueryBuilder\QueryBuilderException
+	 */
+    private function getBagsByIds(array $ids) {
+    	if (empty($ids)) return [];
 
-        /** @var LogBag[] $bags */
-        $bags = $this->getRows($q);
+		$q = Qry::select()
+				->fromClass(LogBag::class, $this->getTable(self::TABLE_BAG), 'b')
+				->joinClass(LogItem::class, $this->getTable(self::TABLE_ITEM), 'li', 'b.id', '=', 'li.bagId')
+				->whereIn('b.id', $ids)
+				->orderBy('b.date', false)
+				;
 
-        foreach ($bags as $bag) {
-            $bag->logItems = $this->getItems($bag->id);
-        }
+		$objects = $this->getObjects($q);
 
-        return $bags;
-    }
+		/** @var LogBag[] $bags */
+		$bags = $objects['b'] ?? [];
+		/** @var LogItem[] $items */
+		$items = $objects['li'] ?? [];
 
-    public function getBagsSince(CovleDate $since, CovleDate $until = null, $limit = 100, $offset = 0) {
-        $q = Qry::select()
-            ->from($this->getTable(self::TABLE_BAG))
-            ->where('date', '>', $since->toSeconds())
-            ->orderBy('date', false)
-            ->limit($limit, $offset)
-            ->asClass(LogBag::class);
+		foreach ( $items as $item ) {
+			$bags[$item->bagId]->logItems[] = $item;
+		}
 
-        if ($until){
-            $q->where('date', '<', $until->toSeconds());
-        }
+		return array_values($bags);
+	}
 
-        /** @var LogBag[] $bags */
-        $bags = $this->getRows($q);
-
-        foreach ($bags as $bag) {
-            $bag->logItems = $this->getItems($bag->id);
-        }
-
-        return $bags;
-    }
-
+	/**
+	 * @param LogQuery $query
+	 *
+	 * @return LogBag[]
+	 * @throws \c00\QueryBuilder\QueryBuilderException
+	 */
     public function queryBags(LogQuery $query) {
         $offset = $query->limit * $query->page;
-        $q = Qry::select()
+
+        $q = Qry::select('b.id')
             ->fromClass(LogBag::class, $this->getTable(self::TABLE_BAG), 'b')
             ->joinClass(LogItem::class, $this->getTable(self::TABLE_ITEM), 'i', 'b.id', '=', 'i.bagId')
             ->orderBy('b.date', false)
@@ -200,21 +222,16 @@ class Database extends AbstractDatabase {
             $q->where('b.date', '<', $query->until->toSeconds());
         }
 
-        if (count($query->includeLevels) > 0){
-            $q->whereIn('i.level', $query->includeLevels);
+        if ( count($query->levels) > 0){
+            $q->whereIn('i.level', $query->levels);
         }
 
-        /** @var LogBag[] $bags */
-        $objects = $this->getObjects($q);
-        /** @var LogBag[] $bags */
-        $bags = $objects['b'] ?? [];
-        /** @var LogItem[] $items */
-        $items = $objects['i'] ?? [];
+        if (count($query->tags) > 0) {
+        	$q->whereIn('i.tag', $query->tags);
+		}
 
-        foreach ($items as $item) {
-            if (isset($bags[$item->bagId])) $bags[$item->bagId]->logItems[] = $item;
-        }
+        $ids = $this->getValues($q);
 
-        return array_values($bags);
+        return $this->getBagsByIds($ids);
     }
 }
