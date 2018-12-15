@@ -16,6 +16,6 @@ class LogBagTest extends TestCase
 
 	public function testUrl() {
 		$l = new LogBag([], true);
-		$this->assertEquals('cli', $l->getFullUrl());
+		$this->assertContains('log/vendor/phpunit/phpunit/phpunit', $l->getFullUrl());
 	}
 }

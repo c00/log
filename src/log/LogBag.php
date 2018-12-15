@@ -57,7 +57,9 @@ class LogBag extends AbstractDatabaseObject
 
     public function getFullUrl($url_encode = false) {
     	if (php_sapi_name() === 'cli') {
-    		$result = 'cli';
+    		global $argv;
+    		if (!isset($argv)) return 'unknown source';
+    		return implode(' ', $argv);
 		} else {
 			if (isset($_SERVER['HTTPS'])) {
 				$result = "https://";
