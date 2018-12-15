@@ -69,11 +69,11 @@ class Database extends AbstractDatabase {
         return false;
     }
 
-    private function getTable($name){
+    protected function getTable($name){
         return $this->settings->tablePrefix . $name;
     }
 
-    private function bagExists($bagId){
+    protected function bagExists($bagId){
         $q = Qry::select('id')
             ->from($this->getTable(self::TABLE_BAG))
             ->where('id', '=', $bagId);
@@ -121,7 +121,7 @@ class Database extends AbstractDatabase {
         return $bag;
     }
 
-    private function getItems($bagId){
+    protected function getItems($bagId){
         $q = Qry::select()
             ->from($this->getTable(self::TABLE_ITEM))
             ->where('bagId', '=', $bagId)
