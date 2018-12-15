@@ -63,7 +63,7 @@ class LogToSqlTest extends TestCase
     }
 
     public function testQueryLast() {
-        $this->th->addTestLogs();
+        $this->th->addMultipleBags();
 
         $q = new LogQuery();
         //Only a since date, that's after stuff was added. Should return nothing.
@@ -76,27 +76,32 @@ class LogToSqlTest extends TestCase
         $q->since->addSeconds(-10);
         $bags = $this->db->queryBags($q);
 
-        $this->assertEquals(1, count($bags));
-        $this->assertEquals(15, count($bags[0]->logItems));
+        $this->assertEquals(3, count($bags));
+        $this->assertEquals(2, count($bags[0]->logItems));
+		$this->assertEquals(2, count($bags[1]->logItems));
+		$this->assertEquals(3, count($bags[2]->logItems));
 
-        //Get only errors
+        //Get only bags that have errors
         $q->levels = [Log::ERROR];
 
         $bags = $this->db->queryBags($q);
-        $this->assertEquals(3, count($bags[0]->logItems));
-        foreach ($bags[0]->logItems as $logItem) {
-            $this->assertEquals(Log::ERROR, $logItem->level);
-        }
+
+		$this->assertEquals(2, count($bags));
+        $this->assertEquals(2, count($bags[0]->logItems));
+		$this->assertEquals(3, count($bags[1]->logItems));
+
+
+		$this->assertEquals(Log::ERROR, $bags[0]->logItems[1]->level);
+		$this->assertEquals(Log::ERROR, $bags[1]->logItems[1]->level);
 
         //Get errors and debugs
         $q->levels = [Log::ERROR, Log::DEBUG];
 
         $bags = $this->db->queryBags($q);
-        $this->assertEquals(6, count($bags[0]->logItems));
-        foreach ($bags[0]->logItems as $logItem) {
-            $this->assertTrue(in_array($logItem->level, $q->levels));
-        }
-
+		$this->assertEquals(3, count($bags));
+		$this->assertEquals(2, count($bags[0]->logItems));
+		$this->assertEquals(2, count($bags[1]->logItems));
+		$this->assertEquals(3, count($bags[2]->logItems));
     }
 
 

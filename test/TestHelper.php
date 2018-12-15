@@ -56,5 +56,23 @@ class TestHelper {
 		return $this;
 	}
 
+	public function addMultipleBags() {
+		Log::debug(self::TAG, "debug message1");
+		Log::info(self::TAG, "info message1");
+		Log::flush();
+
+		Log::init($this->settings);
+		Log::warning(self::TAG, "warning message1");
+		Log::error(self::TAG, "error message1");
+		Log::flush();
+
+		Log::init($this->settings);
+		Log::warning(self::TAG, "warning message2");
+		Log::error(self::TAG, "error message2");
+		Log::debug(self::TAG, "debug message2");
+		Log::flush();
+
+	}
+
 
 }

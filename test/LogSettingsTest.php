@@ -110,7 +110,7 @@ class LogSettingsTest extends TestCase
         $loaded->load();
 
         /** @var SqlSettings $loadedSqlChannelSettings */
-        $loadedSqlChannelSettings = $loaded->getChannelSettings(SqlChannel::class);
+        $loadedSqlChannelSettings = $loaded->getChannelSettings(SqlSettings::class);
         $this->assertEquals(SqlSettings::class, get_class($loadedSqlChannelSettings));
         $this->assertEquals("foo", $loadedSqlChannelSettings->password);
 

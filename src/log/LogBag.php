@@ -36,7 +36,7 @@ class LogBag extends AbstractDatabaseObject
      */
     public function __construct($logItems = [], $isNew = false) {
         if ($isNew) {
-            $this->CreateBagInfo();
+            $this->createBagInfo();
         }
 
         $this->logItems = $logItems;
@@ -47,12 +47,11 @@ class LogBag extends AbstractDatabaseObject
         return clone $this;
     }
 
-    public function CreateBagInfo() {
+    public function createBagInfo() {
         $this->url = $this->getFullUrl();
         $this->verb = $_SERVER['REQUEST_METHOD'] ?? null;
 	    $this->ip = $_SERVER['REMOTE_ADDR'] ?? null;
         $this->date = new CovleDate();
-        //$this->bagId = "req_" . bin2hex(random_bytes(16));
     }
 
     public function getFullUrl($url_encode = false) {
