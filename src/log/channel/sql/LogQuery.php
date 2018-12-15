@@ -23,7 +23,7 @@ class LogQuery
     public $tags = [];
 
     public $page = 0;
-    public $limit = self::DEFAULT_PER_PAGE;
+    public $perPage = self::DEFAULT_PER_PAGE;
 
     public function __construct()
     {

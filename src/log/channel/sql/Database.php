@@ -206,13 +206,13 @@ class Database extends AbstractDatabase {
 	 * @throws \c00\QueryBuilder\QueryBuilderException
 	 */
     public function queryBags(LogQuery $query) {
-        $offset = $query->limit * $query->page;
+        $offset = $query->perPage * $query->page;
 
         $q = Qry::select('b.id')
             ->fromClass(LogBag::class, $this->getTable(self::TABLE_BAG), 'b')
             ->joinClass(LogItem::class, $this->getTable(self::TABLE_ITEM), 'i', 'b.id', '=', 'i.bagId')
             ->orderBy('b.date', false)
-            ->limit($query->limit, $offset);
+            ->limit($query->perPage, $offset);
 
         if ($query->since){
             $q->where('b.date', '>', $query->since->toSeconds());
