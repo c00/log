@@ -21,6 +21,8 @@ class LogTest extends TestCase
         Log::info(self::TAG_TEST, "info message");
         Log::error(self::TAG_TEST, "error message");
 
+        Log::log(Log::EXTRA_DEBUG, self::TAG_TEST, "Extra debug message through log function");
+
         $logs = Log::getLogForView();
 
         $this->assertTrue($logs instanceof LogBag);
@@ -28,13 +30,16 @@ class LogTest extends TestCase
         $this->assertEquals('first message', $logs->logItems[0]->message);
         $this->assertEquals('info message', $logs->logItems[1]->message);
         $this->assertEquals('error message', $logs->logItems[2]->message);
+		$this->assertEquals('Extra debug message through log function', $logs->logItems[3]->message);
         $this->assertEquals(Log::DEBUG, $logs->logItems[0]->level);
         $this->assertEquals(Log::INFO, $logs->logItems[1]->level);
         $this->assertEquals(Log::ERROR, $logs->logItems[2]->level);
+		$this->assertEquals(Log::EXTRA_DEBUG, $logs->logItems[3]->level);
 
 		$this->assertEquals(self::TAG_TEST, $logs->logItems[0]->tag);
 		$this->assertEquals(self::TAG_TEST, $logs->logItems[1]->tag);
 		$this->assertEquals(self::TAG_TEST, $logs->logItems[2]->tag);
+		$this->assertEquals(self::TAG_TEST, $logs->logItems[3]->tag);
 	}
 
 	/**

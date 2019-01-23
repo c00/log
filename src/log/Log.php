@@ -269,4 +269,22 @@ class Log {
         $logger->logToChannels($item);
         return 1;
     }
+
+	/**
+	 * @param $level int The log Level
+	 * @param $tag string A label or tag to group log messages
+	 * @param string $message The extra debug message to log.
+	 * @param mixed $o The object to log.
+	 *
+	 * @return int
+	 */
+    public static function log($level, $tag, $message, $o = 0) {
+		$logger = Log::getInstance();
+
+		$trace = debug_backtrace();
+		$item = LogItem::newItem($level, $message, $tag, $trace, $o);
+
+		$logger->logToChannels($item);
+		return 1;
+	}
 }
