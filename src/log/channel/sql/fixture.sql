@@ -11,7 +11,7 @@ SET NAMES utf8mb4;
 DROP TABLE IF EXISTS `{{PREFIX}}bag`;
 CREATE TABLE `{{PREFIX}}bag` (
   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `url` varchar(255) DEFAULT NULL,
+  `url` varchar(512) DEFAULT NULL,
   `ip` varchar(100) DEFAULT NULL,
   `verb` varchar(10) DEFAULT NULL,
   `userId` varchar(30) DEFAULT NULL,

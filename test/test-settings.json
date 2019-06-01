@@ -15,8 +15,8 @@
     },
     "c00\\log\\channel\\sql\\SqlSettings": {
       "class": "c00\\log\\channel\\sql\\SqlChannel",
-      "username": "coo",
-      "password": "123",
+      "username": "root",
+      "password": "root",
       "host": "127.0.0.1",
       "database": "test_log_v2",
       "tablePrefix": "log_",
